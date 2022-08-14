@@ -1156,4 +1156,8 @@ export default {
     max-height: 100%;
 }
 
+.row + .row {
+    margin-top: 0px;
+}
+
 </style>

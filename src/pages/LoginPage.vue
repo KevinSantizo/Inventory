@@ -58,11 +58,12 @@ import router from "@/routes/index";
       axios.get(url).then((res) => {
         for (let index = 0; index < res.data.length; index++) {
           if (this.email === res.data[index]["email"] && this.password === res.data[index]["password"]) { 
-            localStorage.setItem('user', res.data[index]['id']);  
-            console.log(res.data[index]["id"], " user id");
-            router.push({ name: "Dashboard" }).catch(e => {
+          localStorage.setItem('user', res.data[index]['id']); 
+          localStorage.setItem('bo', res.data[index]['branch_office']);  
+           console.log(res.data[index]['branch_office']);
+            router.push({name: 'Dashboard'}).catch(e => {
                 console.log(e); 
-            }); 
+            });
           } else {
             console.log("didnt match ");
           }

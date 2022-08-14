@@ -37,7 +37,7 @@
 
           <template slot="content">
             <p class="category">Productos</p>
-            <h3 class="title">{{listofProducts.length}}</h3>
+            <h3 class="title">{{listofProducts}}</h3>
           </template>
         </stats-card>
       </div>
@@ -51,7 +51,7 @@
 
           <template slot="content">
             <p class="category">Categorías</p>
-            <h3 class="title">{{categories.length}}</h3>
+            <h3 class="title">{{categories}}</h3>
           </template>
         </stats-card>
       </div>
@@ -65,7 +65,7 @@
 
           <template slot="content">
             <p class="category">Proveedores</p>
-            <h3 class="title">{{suppliers.length}}</h3>
+            <h3 class="title">{{suppliers}}</h3>
           </template>
         </stats-card>
       </div>
@@ -226,6 +226,7 @@ export default {
    },
   data() {
     return {
+      bid: "",
       headers: [
         {
           text: 'Descripción',
@@ -278,15 +279,17 @@ export default {
       currentDaySales: [],
       currentMonthSales: [],
       length: "",
-      listofProducts: [],
-      categories: [],
-      suppliers: [],  
+      listofProducts: "",
+      categories: "",
+      suppliers: "",  
       reminders: [], 
       reminderform: {
         description: "",
         date: "",
         branch_office: 1
       },
+      parsedEntrySales: [],
+      parsedEntrySalesDay: []
 
     };
   },
@@ -299,6 +302,8 @@ export default {
     },
   }, 
   async mounted () { 
+
+    this.bid = localStorage.getItem('bo'); 
     const labels = [];
     const theData = []; 
 
@@ -310,14 +315,13 @@ export default {
             if (isNew) mySet.add(key);
           return isNew;
         }); 
-      } 
-
-
+      }  
       var withoutDuplicates = getFirst(x => x.month, response.data);
         this.salesByMonth = withoutDuplicates;
-        withoutDuplicates.map(entry => {
-          labels.push(entry.month.toUpperCase().substring(0, 3));  
-          theData.push(entry.total_sales)
+        withoutDuplicates.map(entry => { 
+          this.parsedEntrySales = entry.sales.filter((s)=> s.branch_office == this.bid);
+           labels.push(entry.month.toUpperCase().substring(0, 3));  
+          theData.push(this.parsedEntrySales.length)
         }); 
  
       }).catch((err) => {
@@ -329,17 +333,13 @@ export default {
     const labelsDay = [];
     const theDataDay = []; 
  
-    await axios.get(`${API}api/sales/sales-by-day/`).then((response) => {
- 
+    await axios.get(`${API}api/sales/sales-by-day/?branch_office=${this.bid}`).then((response) => {
       this.salesByDay = response.data.slice(-7); 
       this.salesByDay.map(entry => {
+          this.parsedEntrySalesDay = entry.sales.filter((s)=> s.branch_office == this.bid);
           labelsDay.push(entry.day.toUpperCase().substring(0, 1));  
-          theDataDay.push(entry.total_sales)
+          theDataDay.push(this.parsedEntrySalesDay.length)
         }); 
-
-        console.log(this.salesByDay, " sales by day");
-        //console.log(labelsDay.length, "length"); 
-        
  
       }).catch((err) => {
         console.log('Err: ' + err);
@@ -420,11 +420,11 @@ export default {
 
   },
    created (){ 
+    this.bid = localStorage.getItem('bo');
     console.log(localStorage.getItem('user'), " getting user id ");
     this.getSalesByCurrentMonth(); 
     this.getSalesByCurrentDay(); 
     this.getProducts();
-    this.getCategories();
     this.getSuplliers(); 
     this.getReminders();
     this.getSales();
@@ -435,10 +435,10 @@ export default {
     getProducts() {
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios
-        .get(`${API}api/sales/product/`, { headers })
-        .then((response) => {
-          this.listofProducts = response.data;
-          console.log(this.listofProducts, " list of products");
+        .get(`${API}api/sales/branch-office-p/${this.bid}/`, { headers })
+        .then((response) => { 
+          this.listofProducts = response.data.products;
+          this.categories = response.data.categories;  
         })
         .catch((error) => {
           console.log(error);
@@ -446,7 +446,7 @@ export default {
         }) 
     },
 
-
+/*
     getCategories() {
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios
@@ -459,13 +459,13 @@ export default {
           this.errored = true;
         }) 
     },
-
+*/
     getSuplliers() {
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios
-        .get(`${API}api/sales/supplier/`, { headers })
-        .then((response) => {
-          this.suppliers = response.data;
+        .get(`${API}api/sales/branch-office-s/${this.bid}/`, { headers })
+        .then((response) => { 
+          this.suppliers = response.data.suppliers;
          })
         .catch((error) => {
           console.log(error);
@@ -475,8 +475,8 @@ export default {
   
     getSalesByCurrentMonth(){
       let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/sale-details-current-month/`, { headers }).then((response) =>{
-       this.currentMonthSales = response.data;
+      axios.get(`${API}api/sales/sale-details-current-month/?branch_office=${this.bid}`, { headers }).then((response) =>{
+       this.currentMonthSales = response.data; ;
        }).catch((err) => {
         console.log('Err: ' + err);
       })
@@ -484,8 +484,9 @@ export default {
 
     getSalesByCurrentDay(){
       let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/sale-details-current-day/`, { headers }).then((response) =>{
-       this.currentDaySales = response.data;
+      axios.get(`${API}api/sales/sale-details-current-day/?branch_office=${this.bid}`, { headers }).then((response) =>{
+       this.currentDaySales = response.data; 
+
        }).catch((err) => {
         console.log('Err: ' + err);
       })
@@ -518,9 +519,9 @@ export default {
 
     getReminders(){
       let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/reminder/`, { headers })
-      .then((response) => {
-        this.reminders = response.data;
+      axios.get(`${API}api/sales/branch-office-re/${this.bid}/`, { headers })
+      .then((response) => { 
+        this.reminders = response.data.list_reminders;
         this.reminders.reverse();
         })
       .catch((error) => {
@@ -541,10 +542,9 @@ export default {
     getSales() {
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios
-        .get(`${API}api/sales/`, { headers })
-        .then((response) => {
-          console.log(response.data);
-          this.latestSales = response.data.slice(-5); 
+        .get(`${API}api/sales/branch-office-sa/${this.bid}`, { headers })
+        .then((response) => { 
+          this.latestSales = response.data.list_sales.slice(-5); 
           this.latestSales.reverse();
         }).catch((error) => {
         return error;
