@@ -304,6 +304,7 @@ export default {
   async mounted () { 
 
     this.bid = localStorage.getItem('bo'); 
+    console.log(this.bid, " lgo");
     const labels = [];
     const theData = []; 
 

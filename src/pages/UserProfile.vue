@@ -5,153 +5,243 @@
         <v-row justify="center"> 
           <v-dialog v-model="productPatchForm" persistent max-width="1200px"> 
             <v-card>
-              <v-card-title>
-                <span class="title">Editar producto</span>
-              </v-card-title>
-              <v-card-text>
-                <v-container>
-                  <v-form ref="productForm">
-                    <v-row >
-                      <v-col cols="12" sm="4">
-                        <v-text-field
-                          label="Nombre del producto*"
-                          required
-                          outlined
-                          dense
-                          color="#26547c."
-                          v-model="productForm.name"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="4">
-                        <v-text-field
-                          label="Stock*"
-                          type="number"
-                          color="#26547c"
-                          outlined
-                          dense
-                          v-model="productForm.stock"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="4">
-                        <v-text-field
-                          label="Código" 
-                          color="#26547c"
-                          outlined
-                          dense
-                          v-model="productForm.code"
-                        ></v-text-field>
-                      </v-col>  
-                      <v-col cols="12" sm="6">
-                        <v-row no-gutters>
-                          <v-select
-                            class="mr-2"
-                            :items="categories"
-                            item-text="name"
-                            @change="selectText"
-                            return-object
-                            :disabled="readOnly"
-                            :label="categoryName"
-                            required
+              <div > 
+                <v-card-title>
+                  <div class="title">Modificar producto</div>
+                </v-card-title> 
+                <v-divider></v-divider> 
+                <div>
+                  <v-form ref="productForm" class="mt-3"> 
+                    <table>
+                      <tr>
+                          <td>
+                            <div class="mt-2 mr-2 font-weight-bold ">
+                              Código de barras
+                            </div> 
+                          </td>
+                          <td>
+                            <v-text-field  
+                              hide-details
+                              readonly
+                              prepend-inner-icon="mdi-barcode-scan" 
+                              color="#26547c"
+                              required
+                              outlined
+                              dense 
+                              @keydown.enter="submit"
+                              v-model="productForm.barcode"
+                            ></v-text-field>
+                          </td>
+                          <td>
+                            <div class="mt-2 font-weight-bold   ">
+                              Stock 
+                            </div>  
+                          </td>
+                          <td> 
+                            <v-text-field 
+                              type="number"
+                              color="#26547c"
+                              outlined
+                              hide-details
+                              dense 
+                              v-model="productForm.stock"
+                            ></v-text-field>
+                          </td>   
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="mt-2 mr-2 font-weight-bold ">
+                              Descripción
+                            </div>
+                            
+                            </td>
+                          <td>
+                            <v-text-field 
+                              hide-details
+                              required
+                              outlined
+                              dense
+                              color="#26547c"
+                              v-model="productForm.name" 
+                            ></v-text-field> 
+                          </td> 
+                          <td>
+                            <div class="mt-2 mr-2 font-weight-bold">
+                              Stock mínimo
+                            </div>  
+                          </td>
+                          <td>
+                            <v-text-field 
+                              type="number"
+                              color="#26547c"
+                              outlined
+                              dense
+                              hide-details 
+                              v-model="productForm.min_stock"
+                          ></v-text-field>
+                          </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="mt-2 mr-2 font-weight-bold ">
+                              Precio costo
+                            </div>
+                        </td>
+                        <td>
+                          <v-text-field 
+                            outlined
+                            hide-details=""
+                            dense
+                            color="#26547c"
+                            type="number" 
+                            prefix="Q."
+                            v-model="productForm.cost_price"
+                          ></v-text-field>
+                        </td> 
+                        <td>
+                          <div class="mt-2 mr-2 font-weight-bold">
+                            Stock máximo
+                          </div>  
+                        </td>
+                        <td>
+                          <v-text-field 
+                            type="number"
                             color="#26547c"
                             outlined
                             dense
-                            v-model="categoryName"
-                          ></v-select>
-                          <div class=" ">
-                            <v-btn
-                              @click="dialog2 = true"
-                              x-small
-                              dark
-                              fab
-                              :disabled="readOnly"
-                              color="green"
-                            >
-                              <v-icon dark> mdi-plus </v-icon>
-                            </v-btn>
+                            hide-details 
+                            v-model="productForm.max_stock"
+                          ></v-text-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="mt-2 mr-2 font-weight-bold  ">
+                            Precio venta
+                          </div> 
+                        </td>
+                        <td>
+                          <v-text-field 
+                            persistent-hint
+                            required
+                            color="#26547c"
+                            outlined
+                            hide-details="" 
+                            dense
+                            type="number"
+                            prefix="Q."
+                            v-model="productForm.sale_price"
+                          ></v-text-field> 
+                        </td> 
+                        <td>
+                          <div class="mt-2 mr-2 font-weight-bold">
+                            Código
+                          </div>  
+                        </td>
+                        <td>
+                          <v-text-field 
+                            color="#26547c"
+                            outlined
+                            dense
+                            hide-details 
+                            v-model="productForm.code"
+                          ></v-text-field>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="mt-2 mr-2 font-weight-bold ">
+                            Precio mayoreo
+                          </div>  
+                        </td>
+                        <td>
+                          <v-text-field 
+                            hide-details
+                            outlined
+                            color="#26547c"
+                            dense 
+                            type="number"
+                            prefix="Q."
+                            v-model="productForm.wholesale_price"
+                        ></v-text-field>
+                        </td> 
+                        <td>
+                          <div class="mt-2 mr-2 font-weight-bold ">
+                            Presentación
                           </div>
-                        </v-row>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          label="Precio de compra*"
-                          outlined
-                          dense
-                          color="#26547c"
-                          type="number"
-                          prefix="Q."
-                          v-model="productForm.cost_price"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          label="Precio de venta*"
-                          persistent-hint
-                          required
-                          color="#26547c"
-                          outlined
-                          dense
-                          type="number"
-                          prefix="Q."
-                          v-model="productForm.sale_price"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field 
-                          outlined
-                          color="#26547c"
-                          dense 
-                          type="number"
-                          prefix="Q."
-                          v-model="productForm.wholesale_price"
-                        ></v-text-field>
-                      </v-col> 
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          :disabled="readOnly"
-                          label="Código de barras*"
-                          color="#26547c"
-                          required
-                          outlined
-                          dense
-                          @keydown.enter="submit"
-                          v-model="productForm.barcode"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6">
-                        <v-text-field
-                          label="Fecha de caducidad*"
-                          type="date"
-                          color="#26547c"
-                          required
-                          outlined
-                          dense
-                          v-model="productForm.sell_by_date"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-form>
-                </v-container>
-              </v-card-text>
-              <v-card outlined class="pa-3" color="grey lighten-4">
+                        </td>
+                        <td>
+                          <v-text-field 
+                            color="#26547c"
+                            outlined
+                            dense
+                            hide-details 
+                            v-model="productForm.filling"
+                          ></v-text-field> 
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="mt-2 mr-2 font-weight-bold">
+                            Categoría
+                          </div>
+                        </td>
+                        <td>
+                          <v-row>
+                            <v-select
+                              class="mr-3 ml-3 "
+                              :items="categories"
+                              item-text="name"
+                              @change="selectText"
+                              return-object
+                              hide-details
+                              :disabled="readOnly" 
+                              required
+                              color="#26547c"
+                              outlined 
+                              dense
+                              readonly
+                              v-model="categoryName"
+                            ></v-select>
+                            <div class=" ">
+                              <v-btn
+                                @click="dialog2 = true"  
+                                elevation="0" 
+                                outlined
+                                small
+                                disabled
+                                color="#26547c"
+                              >
+                                <v-icon dark> mdi-plus </v-icon>
+                              </v-btn>
+                            </div>
+                          </v-row>
+                        </td> 
+                      </tr>  
+                    </table> 
+                  </v-form>  
+                </div>
+              <v-card outlined class="pa-3 mt-6" color="grey lighten-4">
                 <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    elevation="0" color="grey" dark
-                    @click="productPatchForm = false"
-                  >
-                    Cerrar
+                  <v-spacer></v-spacer> 
+                  <v-btn @click="(productPatchForm = false)" class="ma-2" elevation="0" color="grey" dark>
+                    Cancelar
                   </v-btn>
                   <v-btn 
-                    color="#26547c"
+                    color="#2ec4b6"
                     dark
+                    min-width="200"
                     elevation="0"
-                    @click="( dialogForm = true ),patchProduct()"
+                    @click="(dialogForm = true), patchProductByForm()"
                   >
+                    <v-icon dark class="mr-3"> mdi-check </v-icon>
                     Guardar
                   </v-btn>
                 </v-card-actions>
-              </v-card>
-            </v-card>
+              </v-card> 
+
+            </div>
+          </v-card>
           </v-dialog>
           <v-dialog v-model="dialog2" max-width="500px">
             <v-card>
@@ -188,8 +278,7 @@
       </div> 
     </v-row>
     
-    <div class=" mr-5 ml-5 ">
-  
+    <div class=" mr-5 ml-5 "> 
         <v-card>
           <v-tabs 
             v-model="tab" 
@@ -198,75 +287,113 @@
           >
             <v-tabs-slider color="#26547c"></v-tabs-slider> 
             <v-tab ><v-icon class="mr-3"  >mdi-file-document-multiple-outline</v-icon>Nuevo</v-tab>
-            <v-tab><v-icon class="mr-3" >mdi-shape-outline</v-icon>Categorías</v-tab>
-            <v-tab><v-icon class="mr-3" >mdi-clipboard-text-multiple-outline</v-icon>Todos los productos</v-tab>
+            <v-tab><v-icon class="mr-3" >mdi-text-box-edit-outline</v-icon>Modificar</v-tab>
+           
+           <v-tab><v-icon class="mr-3" >mdi-shape-outline</v-icon>Categorías</v-tab>
+            <v-tab><v-icon class="mr-3" >mdi-clipboard-text-multiple-outline</v-icon>Productos</v-tab>
           </v-tabs>
         </v-card>
       <v-tabs-items v-model="tab" class="mt-3">
       <v-tab-item  > 
-      <v-card-title>
-        <div class="title">Nuevo producto</div>
-      </v-card-title> 
-      <v-divider></v-divider> 
-      <div>
-          <v-form ref="productForm" class="mt-3"> 
-            <table>
-              <tr>
-                  <td>
-                    <div class="mt-2 mr-2 font-weight-bold ">
-                      Código de barras
-                    </div> 
-                  </td>
-                  <td>
-                    <v-text-field  
-                      hide-details
-                      prepend-inner-icon="mdi-barcode-scan" 
-                      color="#26547c"
-                      required
-                      outlined
-                      dense
-                      @keydown.enter="submit"
-                      v-model="productForm.barcode"
+        <v-card-title>
+          <div class="title">Nuevo producto</div>
+        </v-card-title> 
+        <v-divider></v-divider> 
+        <div>
+            <v-form ref="productForm" class="mt-3"> 
+              <table>
+                <tr>
+                    <td>
+                      <div class="mt-2 mr-2 font-weight-bold ">
+                        Código de barras
+                      </div> 
+                    </td>
+                    <td>
+                      <v-text-field  
+                        hide-details
+                        prepend-inner-icon="mdi-barcode-scan" 
+                        color="#26547c"
+                        required
+                        outlined
+                        dense
+                        :rules="obligatorioRules" 
+                        @keydown.enter="submit"
+                        v-model="productForm.barcode"
+                      ></v-text-field>
+                    </td>
+                    <td>
+                      <div class="mt-2 font-weight-bold   ">
+                        Stock 
+                      </div>  
+                    </td>
+                    <td> 
+                      <v-text-field 
+                        type="number"
+                        color="#26547c"
+                        outlined
+                        hide-details
+                        dense
+                        :rules="obligatorioRules" 
+                        v-model="productForm.stock"
+                      ></v-text-field>
+                    </td>   
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="mt-2 mr-2 font-weight-bold ">
+                        Descripción
+                      </div>
+                      
+                      </td>
+                    <td>
+                      <v-text-field 
+                        hide-details
+                        required
+                        outlined
+                        dense
+                        color="#26547c"
+                        v-model="productForm.name"
+                        :rules="obligatorioRules" 
+                      ></v-text-field> 
+                    </td> 
+                    <td>
+                      <div class="mt-2 mr-2 font-weight-bold">
+                        Stock mínimo
+                      </div>  
+                    </td>
+                    <td>
+                      <v-text-field 
+                        type="number"
+                        color="#26547c"
+                        outlined
+                        dense
+                        hide-details
+                        :rules="obligatorioRules" 
+                        v-model="productForm.min_stock"
                     ></v-text-field>
-                  </td>
-                  <td>
-                    <div class="mt-2 font-weight-bold   ">
-                      Stock 
-                    </div>  
-                  </td>
-                  <td> 
-                    <v-text-field 
-                      type="number"
-                      color="#26547c"
-                      outlined
-                      hide-details
-                      dense
-                      :rules="obligatorioRules" 
-                      v-model="productForm.stock"
-                    ></v-text-field>
-                  </td>   
+                    </td>
                 </tr>
                 <tr>
                   <td>
                     <div class="mt-2 mr-2 font-weight-bold ">
-                      Descripción
-                    </div>
-                    
-                    </td>
+                        Precio costo
+                      </div>
+                  </td>
                   <td>
                     <v-text-field 
-                      hide-details
-                      required
                       outlined
+                      hide-details=""
                       dense
                       color="#26547c"
-                      v-model="productForm.name"
+                      type="number"
                       :rules="obligatorioRules" 
-                    ></v-text-field> 
+                      prefix="Q."
+                      v-model="productForm.cost_price"
+                    ></v-text-field>
                   </td> 
                   <td>
                     <div class="mt-2 mr-2 font-weight-bold">
-                      Stock mínimo
+                      Stock máximo
                     </div>  
                   </td>
                   <td>
@@ -277,181 +404,481 @@
                       dense
                       hide-details
                       :rules="obligatorioRules" 
-                      v-model="productForm.stock"
-                  ></v-text-field>
+                      v-model="productForm.max_stock"
+                    ></v-text-field>
                   </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="mt-2 mr-2 font-weight-bold ">
-                      Precio costo
-                    </div>
-                </td>
-                <td>
-                  <v-text-field 
-                    outlined
-                    hide-details=""
-                    dense
-                    color="#26547c"
-                    type="number"
-                    :rules="obligatorioRules" 
-                    prefix="Q."
-                    v-model="productForm.cost_price"
-                  ></v-text-field>
-                </td> 
-                 <td>
-                  <div class="mt-2 mr-2 font-weight-bold">
-                    Stock máximo
-                  </div>  
-                 </td>
-                 <td>
-                  <v-text-field 
-                    type="number"
-                    color="#26547c"
-                    outlined
-                    dense
-                    hide-details
-                    :rules="obligatorioRules" 
-                    v-model="productForm.stock"
-                  ></v-text-field>
-                 </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="mt-2 mr-2 font-weight-bold  ">
-                    Precio venta
-                  </div> 
-                </td>
-                <td>
-                  <v-text-field 
-                    persistent-hint
-                    required
-                    color="#26547c"
-                    outlined
-                    hide-details=""
-                    :rules="obligatorioRules" 
-                    dense
-                    type="number"
-                    prefix="Q."
-                    v-model="productForm.sale_price"
-                  ></v-text-field> 
-                </td> 
-                <td>
-                  <div class="mt-2 mr-2 font-weight-bold">
-                    Código
-                  </div>  
-                </td>
-                <td>
-                  <v-text-field 
-                    color="#26547c"
-                    outlined
-                    dense
-                    hide-details
-                    :rules="obligatorioRules" 
-                    v-model="productForm.code"
-                  ></v-text-field>
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="mt-2 mr-2 font-weight-bold ">
-                    Precio mayoreo
-                  </div>  
-                </td>
-                <td>
-                  <v-text-field 
-                    hide-details
-                    outlined
-                    color="#26547c"
-                    dense
-                    :rules="obligatorioRules" 
-                    type="number"
-                    prefix="Q."
-                    v-model="productForm.wholesale_price"
-                ></v-text-field>
-                </td> 
-                <td>
-                  <div class="mt-2 mr-2 font-weight-bold ">
-                    Presentación
-                  </div>
-                </td>
-                <td>
-                  <v-text-field 
-                    color="#26547c"
-                    outlined
-                    dense
-                    hide-details
-                    :rules="obligatorioRules" 
-                    v-model="productForm.filling"
-                  ></v-text-field> 
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="mt-2 mr-2 font-weight-bold">
-                    Categoría
-                  </div>
-                </td>
-                <td>
-                   <v-row>
-                    <v-select
-                      class="mr-3 ml-3 "
-                      :items="categories"
-                      item-text="name"
-                      @change="selectText"
-                      return-object
-                      hide-details
-                      :disabled="readOnly" 
+                </tr>
+                <tr>
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold  ">
+                      Precio venta
+                    </div> 
+                  </td>
+                  <td>
+                    <v-text-field 
+                      persistent-hint
                       required
                       color="#26547c"
                       outlined
+                      hide-details=""
                       :rules="obligatorioRules" 
                       dense
-                      v-model="categoryName"
-                    ></v-select>
-                    <div class=" ">
-                      <v-btn
-                        @click="dialog2 = true"  
-                        elevation="0" 
-                        outlined
-                        small
-                        color="#26547c"
-                      >
-                        <v-icon dark> mdi-plus </v-icon>
-                      </v-btn>
+                      type="number"
+                      prefix="Q."
+                      v-model="productForm.sale_price"
+                    ></v-text-field> 
+                  </td> 
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold">
+                      Código
+                    </div>  
+                  </td>
+                  <td>
+                    <v-text-field 
+                      color="#26547c"
+                      outlined
+                      dense
+                      hide-details
+                      :rules="obligatorioRules" 
+                      v-model="productForm.code"
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold ">
+                      Precio mayoreo
+                    </div>  
+                  </td>
+                  <td>
+                    <v-text-field 
+                      hide-details
+                      outlined
+                      color="#26547c"
+                      dense
+                      :rules="obligatorioRules" 
+                      type="number"
+                      prefix="Q."
+                      v-model="productForm.wholesale_price"
+                  ></v-text-field>
+                  </td> 
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold ">
+                      Presentación
                     </div>
-                  </v-row>
-                </td> 
-              </tr>  
-            </table> 
-          </v-form>  
-        </div>
-      <v-card outlined class="pa-3 mt-6" color="grey lighten-4">
-        <v-card-actions>
-          <v-spacer></v-spacer> 
-          <v-btn 
-            color="#2ec4b6"
-            dark
-            min-width="200"
-            elevation="0"
-            @click="  submitProductForm()"
-          >
-            <v-icon dark class="mr-3"> mdi-check </v-icon>
-            Guardar
-          </v-btn>
-        </v-card-actions>
-      </v-card> 
+                  </td>
+                  <td>
+                    <v-text-field 
+                      color="#26547c"
+                      outlined
+                      dense
+                      hide-details
+                      :rules="obligatorioRules" 
+                      v-model="productForm.filling"
+                    ></v-text-field> 
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold">
+                      Categoría
+                    </div>
+                  </td>
+                  <td>
+                    <v-row>
+                      <v-select
+                        class="mr-3 ml-3 "
+                        :items="categories"
+                        item-text="name"
+                        @change="selectText"
+                        return-object
+                        hide-details
+                        :disabled="readOnly" 
+                        required
+                        color="#26547c"
+                        outlined
+                        :rules="obligatorioRules" 
+                        dense
+                        v-model="categoryName"
+                      ></v-select>
+                      <div class=" ">
+                        <v-btn
+                          @click="dialog2 = true"  
+                          elevation="0" 
+                          outlined
+                          small
+                          color="#26547c"
+                        >
+                          <v-icon dark> mdi-plus </v-icon>
+                        </v-btn>
+                      </div>
+                    </v-row>
+                  </td> 
+                </tr>  
+              </table> 
+            </v-form>  
+          </div>
+        <v-card outlined class="pa-3 mt-6" color="grey lighten-4">
+          <v-card-actions>
+            <v-spacer></v-spacer> 
+            <v-btn 
+              color="#2ec4b6"
+              dark
+              min-width="200"
+              elevation="0"
+              @click="submitProductForm()"
+            >
+              <v-icon dark class="mr-3"> mdi-check </v-icon>
+              Guardar
+            </v-btn>
+          </v-card-actions>
+        </v-card> 
       </v-tab-item>
-        <v-tab-item 
-        >
-          <v-card flat>
-            <v-card-text v-text="text"></v-card-text>
-          </v-card>
-        </v-tab-item>
-        <v-tab-item 
-        >
-          <v-card flat>
-            <v-card-text v-text="text"></v-card-text>
+      <v-tab-item> 
+      <div v-if="showDataTable">
+        <v-data-table 
+            :headers="headersSProducts"
+            :items="log" 
+            class="elevation-1"
+            :items-per-page="10"
+            :footer-props="{ 'items-per-page-text':'Productos por página'}"
+          >
+            <template v-slot:item="row"> 
+              <tr>
+                <td class="text-left font-weight-medium">{{row.item.name}} - {{row.item.filling }}</td>
+                <td class="text-center font-weight-medium">{{row.item.product_category.name}}</td>
+                <td class="text-center font-weight-medium">{{row.item.cost_price }}</td>
+                <td class="text-center font-weight-medium">{{row.item.sale_price}} GTQ</td>
+                <td class="text-center green--text font-weight-medium">{{row.item.wholesale_price}} GTQ</td>
+                <td class="text-center font-weight-medium">
+                  <v-card class="ma-2 pa-1 rounded-card" outlined dark :color="row.item.stock < 1 ? '#ff312e' : row.item.stock <= 10 ? 'orange' : '#66ad2d' " text-color="white" > 
+                    <div class="text-center center-text">{{fixStock(row.item.stock)}}</div> 
+                  </v-card>
+                </td>
+                <td class="text-center font-weight-medium">{{ row.item.stock }}</td>
+                <td class="text-center">
+                  <v-btn
+                    class="mx-2"
+                    dark
+                    x-small
+                    elevation="0"
+                    color="#26547c" 
+                    @click="readOnly = true, productPatchForm = true, getProduct(row.item.id)"
+                  >
+                    <v-icon small dark> mdi-pencil </v-icon>
+                  </v-btn>
+                  <v-btn
+                    class="mx-2"
+                    dark
+                    x-small
+                    elevation="0"
+                    color="red accent-3" 
+                    @click="deleteProductAlert(row.item.id)"
+                  >
+                    <v-icon small dark> mdi-trash-can </v-icon>
+                  </v-btn>
+                </td> 
+              </tr>
+          </template>            
+        </v-data-table> 
+        <v-card outlined class="pa-3 mt-6" color="grey lighten-4">
+          <v-card-actions>
+            <v-spacer></v-spacer> 
+            <v-btn @click="(showSearcher = true, showDataTable = false)" class="ma-2" elevation="0" color="grey" dark>
+              Cancelar
+            </v-btn> 
+          </v-card-actions>
+        </v-card> 
+      </div>
+        <div v-if="showForm"> 
+          <v-card-title>
+            <div class="title">Modificar producto</div>
+          </v-card-title> 
+          <v-divider></v-divider> 
+          <div>
+            <v-form ref="productForm" class="mt-3"> 
+              <table>
+                <tr>
+                    <td>
+                      <div class="mt-2 mr-2 font-weight-bold ">
+                        Código de barras
+                      </div> 
+                    </td>
+                    <td>
+                      <v-text-field  
+                        hide-details
+                        readonly
+                        prepend-inner-icon="mdi-barcode-scan" 
+                        color="#26547c"
+                        required
+                        outlined
+                        dense
+                        :rules="obligatorioRules" 
+                        @keydown.enter="submit"
+                        v-model="productForm.barcode"
+                      ></v-text-field>
+                    </td>
+                    <td>
+                      <div class="mt-2 font-weight-bold   ">
+                        Stock 
+                      </div>  
+                    </td>
+                    <td> 
+                      <v-text-field 
+                        type="number"
+                        color="#26547c"
+                        outlined
+                        hide-details
+                        dense
+                        :rules="obligatorioRules" 
+                        v-model="productForm.stock"
+                      ></v-text-field>
+                    </td>   
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="mt-2 mr-2 font-weight-bold ">
+                        Descripción
+                      </div>
+                      
+                      </td>
+                    <td>
+                      <v-text-field 
+                        hide-details
+                        required
+                        outlined
+                        dense
+                        color="#26547c"
+                        v-model="productForm.name"
+                        :rules="obligatorioRules" 
+                      ></v-text-field> 
+                    </td> 
+                    <td>
+                      <div class="mt-2 mr-2 font-weight-bold">
+                        Stock mínimo
+                      </div>  
+                    </td>
+                    <td>
+                      <v-text-field 
+                        type="number"
+                        color="#26547c"
+                        outlined
+                        dense
+                        hide-details
+                        :rules="obligatorioRules" 
+                        v-model="productForm.min_stock"
+                    ></v-text-field>
+                    </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold ">
+                        Precio costo
+                      </div>
+                  </td>
+                  <td>
+                    <v-text-field 
+                      outlined
+                      hide-details=""
+                      dense
+                      color="#26547c"
+                      type="number"
+                      :rules="obligatorioRules" 
+                      prefix="Q."
+                      v-model="productForm.cost_price"
+                    ></v-text-field>
+                  </td> 
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold">
+                      Stock máximo
+                    </div>  
+                  </td>
+                  <td>
+                    <v-text-field 
+                      type="number"
+                      color="#26547c"
+                      outlined
+                      dense
+                      hide-details
+                      :rules="obligatorioRules" 
+                      v-model="productForm.max_stock"
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold  ">
+                      Precio venta
+                    </div> 
+                  </td>
+                  <td>
+                    <v-text-field 
+                      persistent-hint
+                      required
+                      color="#26547c"
+                      outlined
+                      hide-details=""
+                      :rules="obligatorioRules" 
+                      dense
+                      type="number"
+                      prefix="Q."
+                      v-model="productForm.sale_price"
+                    ></v-text-field> 
+                  </td> 
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold">
+                      Código
+                    </div>  
+                  </td>
+                  <td>
+                    <v-text-field 
+                      color="#26547c"
+                      outlined
+                      dense
+                      hide-details
+                      :rules="obligatorioRules" 
+                      v-model="productForm.code"
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold ">
+                      Precio mayoreo
+                    </div>  
+                  </td>
+                  <td>
+                    <v-text-field 
+                      hide-details
+                      outlined
+                      color="#26547c"
+                      dense
+                      :rules="obligatorioRules" 
+                      type="number"
+                      prefix="Q."
+                      v-model="productForm.wholesale_price"
+                  ></v-text-field>
+                  </td> 
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold ">
+                      Presentación
+                    </div>
+                  </td>
+                  <td>
+                    <v-text-field 
+                      color="#26547c"
+                      outlined
+                      dense
+                      hide-details
+                      :rules="obligatorioRules" 
+                      v-model="productForm.filling"
+                    ></v-text-field> 
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold">
+                      Categoría
+                    </div>
+                  </td>
+                  <td>
+                    <v-row>
+                      <v-select
+                        class="mr-3 ml-3 "
+                        :items="categories"
+                        item-text="name"
+                        @change="selectText"
+                        return-object
+                        hide-details
+                        :disabled="readOnly" 
+                        required
+                        color="#26547c"
+                        outlined
+                        :rules="obligatorioRules" 
+                        dense
+                        readonly
+                        v-model="categoryName"
+                      ></v-select>
+                      <div class=" ">
+                        <v-btn
+                          @click="dialog2 = true"  
+                          elevation="0" 
+                          outlined
+                          small
+                          disabled
+                          color="#26547c"
+                        >
+                          <v-icon dark> mdi-plus </v-icon>
+                        </v-btn>
+                      </div>
+                    </v-row>
+                  </td> 
+                </tr>  
+              </table> 
+            </v-form>  
+          </div>
+        <v-card outlined class="pa-3 mt-6" color="grey lighten-4">
+          <v-card-actions>
+            <v-spacer></v-spacer> 
+            <v-btn @click="(showSearcher = true, showForm = false)" class="ma-2" elevation="0" color="grey" dark>
+              Cancelar
+            </v-btn>
+            <v-btn 
+              color="#2ec4b6"
+              dark
+              min-width="200"
+              elevation="0"
+              @click="patchProductByForm()"
+            >
+              <v-icon dark class="mr-3"> mdi-check </v-icon>
+              Guardar
+            </v-btn>
+          </v-card-actions>
+        </v-card> 
+
+      </div>
+      <div class="child" v-if="showSearcher"> 
+        <v-card> 
+            <v-card-text>  
+              <p class="text-h4 text-center text--primary">
+                Modificar producto
+              </p> 
+              <div class="text--primary center"> 
+                <v-text-field 
+                  color="grey" 
+                  class=""  
+                  prepend-inner-icon="mdi-barcode-scan" 
+                  autofocus 
+                  outlined 
+                  clearable 
+                  v-model="search"
+                  v-on:keyup.enter="searchArray"
+                  dense 
+                  label="Buscar producto">
+                </v-text-field> 
+              </div>
+            </v-card-text> 
+            <v-row justify="center" class="mb-5">
+            <v-card-actions> 
+            <v-btn 
+              color="#2ec4b6"
+              dark
+              min-width="200"
+              elevation="0"
+              @click="searchItem()" 
+            >
+              <v-icon dark class="mr-3"> mdi-check </v-icon>
+              Aceptar
+            </v-btn>
+          </v-card-actions>
+            </v-row>
+          
+        </v-card> 
+        </div>
+      </v-tab-item>
+      <v-tab-item>
+      <v-card>
+          <v-card-text v-text="text"></v-card-text>
           </v-card>
         </v-tab-item>
       </v-tabs-items> 
@@ -488,6 +915,10 @@ export default {
   components: {},
   data() {
     return {
+      showForm: false,
+      showSearcher: true,
+      showDataTable: false,
+      log: [],
       bid: "",
       tab: null,
         items: [
@@ -495,7 +926,7 @@ export default {
         ],
       text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
       obligatorioRules: [(v) => !!v || "Campo obligatorio"],
-      search: null,
+      search: "",
       productFormDialog: false,
       productPatchForm: false,
 
@@ -508,8 +939,8 @@ export default {
         name: "",
         barcode: "",
         stock: null,
-        minStock: null,
-        maxStock: null,
+        min_stock: null,
+        max_stock: null,
         cost_price: null,
         sale_price: null,
         wholesale_price: null,
@@ -624,6 +1055,123 @@ computed: {
   },
 
   methods: {
+ 
+  searchArray(e) {
+    e.preventDefault();
+    let filtered = [];
+    const input = e.target.value.toLowerCase();
+    if (input || this.search) {  
+      filtered = this.listOfProducts.filter((el) => {
+        return Object.values(el).some((val) =>
+          String(val).toLowerCase().includes(input)
+        );
+      });
+
+      this.log = filtered;
+      switch (this.log.length) {
+        case 0:
+          this.$swal.fire({
+            title: 'Modificar producto',
+            text: "¡Producto no encontrado!",
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar' 
+          })
+        break;
+
+        case 1: 
+          this.showSearcher = false;
+          this.showForm = true;  
+          this.productForm.id =  this.log[0].id; 
+          this.productForm.name = this.log[0].name;
+          this.productForm.barcode = this.log[0].barcode;
+          this.productForm.stock = this.log[0].stock;
+          this.productForm.cost_price = this.log[0].cost_price;
+          this.productForm.sale_price = this.log[0].sale_price;
+          this.productForm.wholesale_price = this.log[0].wholesale_price;
+          this.productForm.sell_by_date = this.log[0].sell_by_date;
+          this.productForm.branch_office = this.log[0].branch_office; 
+          this.productForm.sell_by_date = this.log[0].sell_by_date;
+          this.productForm.filling = this.log[0].filling;
+          this.productForm.code =this.log[0].code;
+          this.productForm.min_stock = this.log[0].min_stock;
+          this.productForm.max_stock = this.log[0].max_stock;
+          this.productForm.product_category = this.log[0].product_category.id;
+          this.categoryName = this.log[0].product_category.name;
+          console.log(this.productForm.product_category ," car");
+
+        break;
+      
+        default:
+          break;
+      }
+      if (this.log.length > 1) {
+        this.showSearcher = false;
+        this.showForm = false;
+        this.showDataTable = true;
+      }  
+
+    } 
+},
+
+ searchItem() {
+  let filtered = [];
+  if (this.search) {
+  console.log(this.search, " input ");  
+    filtered = this.listOfProducts.filter((el) => {
+      return Object.values(el).some((val) =>
+        String(val).toLowerCase().includes(this.search)
+      );
+    });
+
+    this.log = filtered;
+      switch (this.log.length) {
+      case 0:
+        this.$swal.fire({
+          title: 'Modificar producto',
+          text: "¡Producto no encontrado!",
+          icon: 'warning',
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Aceptar' 
+        })
+      break;
+
+      case 1: 
+        this.showSearcher = false;
+        this.showForm = true;  
+        this.productForm.id =  this.log[0].id; 
+        this.productForm.name = this.log[0].name;
+        this.productForm.barcode = this.log[0].barcode;
+        this.productForm.stock = this.log[0].stock;
+        this.productForm.cost_price = this.log[0].cost_price;
+        this.productForm.sale_price = this.log[0].sale_price;
+        this.productForm.wholesale_price = this.log[0].wholesale_price;
+        this.productForm.sell_by_date = this.log[0].sell_by_date;
+        this.productForm.branch_office = this.log[0].branch_office; 
+        this.productForm.sell_by_date = this.log[0].sell_by_date;
+        this.productForm.filling = this.log[0].filling;
+        this.productForm.code =this.log[0].code;
+        this.productForm.min_stock = this.log[0].min_stock;
+        this.productForm.max_stock = this.log[0].max_stock;
+        this.productForm.product_category = this.log[0].product_category.id;
+        this.categoryName = this.log[0].product_category.name;
+        console.log(this.productForm.product_category ," car");
+
+      break;
+    
+      default:
+        break;
+    }
+    if (this.log.length > 1) {
+      this.showSearcher = false;
+      this.showForm = false;
+      this.showDataTable = true;
+    }  
+  } 
+},
+
     submit(event) {
       event.preventDefault();
       console.log(this.productForm.barcode);
@@ -668,7 +1216,7 @@ computed: {
 
  
 
-    submitProductForm( ) {  
+    submitProductForm( ) {    
       if ( this.productForm.product_category == null ) {
         this.$swal.fire({
           title: 'Formulario',
@@ -691,12 +1239,16 @@ computed: {
           this.productForm.sale_price = null;
           this.productForm.wholesale_price = null;
           this.productForm.sell_by_date = "";
-          this.productForm.branch_office = 1;
-          this.suplierName = "Proveedor*";
-          this.codeName = "Código*";
+          this.productForm.branch_office = this.bid; 
+          this.productForm.sell_by_date = "";
+          this.productForm.filling = "";
+          this.productForm.code = "";
+          this.productForm.min_stock = null;
+          this.productForm.max_stock = null;
           this.categoryName = "Categoría*";
           setTimeout(() => ( (this.productFormDialog = false)), 4000 );
           setTimeout(() => this.notifyVue("top", "right"), 5000);
+          console.log(response.data);
           this.getProducts();
           this.$refs.productForm.reset();
           return response.data;
@@ -704,7 +1256,7 @@ computed: {
         .catch((error) => {
           console.log(error);
         });
-      } if (this.productForm.supplier == null || this.productForm.product_category == null || this.productForm.product_code == null) {
+      } if (this.productForm.product_category == null) {
         this.$swal.fire({
           title: 'Formulario',
           text: "¡Debes seleccionar: Categoría!",
@@ -723,6 +1275,7 @@ computed: {
         .get(`${API}api/sales/product/`, { headers })
         .then(( response ) => {
           this.listOfProducts = response.data;
+          console.log(this.listOfProducts, " list of rpsicuts");
           this.listOfProducts.reverse();  
         })
         .catch((error) => {
@@ -736,18 +1289,24 @@ computed: {
       
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.get(`${API}api/sales/product-get/${id}/`, { headers }).then((res) => {
-        console.log(res.data.id);
-        this.productForm.id = res.data.id;
-        this.productForm.name = res.data.name;
-        this.productForm.stock = res.data.stock;
-        this.productForm.cost_price = res.data.cost_price;
-        this.productForm.sale_price = res.data.sale_price;
-        this.productForm.wholesale_price = res.data.wholesale_price;
-        this.productForm.barcode = res.data.barcode;
-        this.productForm.supplier = res.data.supplier;
-        this.productForm.product_category = res.data.product_category; 
-        this.productForm.product_code = res.data.product_code; 
-        console.log(this.productForm.id, "prd"); 
+          console.log(res.data);
+          this.productForm.id = res.data.id;
+          this.productForm.name = res.data.name;
+          this.productForm.barcode = res.data.barcode;
+          this.productForm.stock = res.data.stock;
+          this.productForm.cost_price = res.data.cost_price;
+          this.productForm.sale_price = res.data.sale_price;
+          this.productForm.wholesale_price = res.data.wholesale_price;
+          this.productForm.sell_by_date = res.data.sell_by_date;
+          this.productForm.branch_office = res.data.branch_office; 
+          this.productForm.sell_by_date = res.data.sell_by_date;
+          this.productForm.filling = res.data.filling;
+          this.productForm.code =res.data.code;
+          this.productForm.min_stock = res.data.min_stock;
+          this.productForm.max_stock = res.data.max_stock;
+          this.productForm.product_category = res.data.product_category.id;
+          this.categoryName = res.data.product_category.name; 
+          console.log(this.productForm.id, "prd"); 
       })
     },
 
@@ -765,15 +1324,11 @@ computed: {
     },
 
     patchProduct(){
+      console.log("patc");
+      let headers = { "Content-Type": "application/json;charset=utf-8" };
+
       axios
-        .patch(`${API}api/sales/product/${this.productForm.id}/`,  {
-          "name": this.productForm.name,
-          "stock": this.productForm.stock,
-          "cost_price": this.productForm.cost_price,
-          "sale_price": this.productForm.sale_price,
-          "wholesale_price": this.productForm.wholesale_price,
-          "sell_by_date": this.productForm.sell_by_date
-        },)
+        .patch(`${API}api/sales/product/${this.productForm.id}/`, this.productForm,{ headers },)
         .then((response) => {
           console.log(response.data, " patching");
           this.productForm.name = "";
@@ -783,12 +1338,70 @@ computed: {
           this.productForm.sale_price = null;
           this.productForm.wholesale_price = null;
           this.productForm.sell_by_date = "";
-          this.productForm.branch_office = 1;
+          this.productForm.branch_office = this.bid; 
+          this.productForm.sell_by_date = "";
+          this.productForm.filling = "";
+          this.productForm.code = "";
+          this.productForm.min_stock = null;
+          this.productForm.max_stock = null;
           this.suplierName = "Proveedor*";
           this.codeName = "Código*";
           this.categoryName = "Categoría*";
           setTimeout(() => ( (this.productPatchForm = false)), 4000 );
           setTimeout(() => this.notifyVue("top", "right"), 5000);
+          this.$notify({
+            message: "¡Se ha guardado el producto! ",
+            icon: "check",
+            horizontalAlign: horizontalAlign,
+            verticalAlign: verticalAlign,
+            type: "success",
+          });
+          this.getProducts();
+          return response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    
+    patchProductByForm(){
+      console.log("patc");
+      let headers = { "Content-Type": "application/json;charset=utf-8" };
+
+      axios
+        .patch(`${API}api/sales/product/${this.productForm.id}/`, this.productForm,{ headers },)
+        .then((response) => {
+          console.log(response.data, " patching");
+          this.productForm.name = "";
+          this.productForm.barcode = "";
+          this.productForm.stock = null;
+          this.productForm.cost_price = null;
+          this.productForm.sale_price = null;
+          this.productForm.wholesale_price = null;
+          this.productForm.sell_by_date = "";
+          this.productForm.branch_office = this.bid; 
+          this.productForm.sell_by_date = "";
+          this.productForm.filling = "";
+          this.productForm.code = "";
+          this.productForm.min_stock = null;
+          this.productForm.max_stock = null;
+          this.suplierName = "Proveedor*";
+          this.codeName = "Código*";
+          this.categoryName = "Categoría*";
+          setTimeout(() => ( (this.productPatchForm = false)), 4000 ); 
+          this.$notify({
+            message: "¡Se ha guardado el producto! ",
+            icon: "check",
+            horizontalAlign: 'right',
+            verticalAlign: 'top',
+            type: "success",
+          });
+          this.$refs.productForm.reset();
+          this.showForm = false;
+          this.showSearcher = true;
+          this.showDataTable = false;
+
+          this.search = "";
           this.getProducts();
           return response.data;
         })
@@ -797,6 +1410,7 @@ computed: {
         });
     },
 
+    
     notifyVue(verticalAlign, horizontalAlign) {
       this.$notify({
         message: "¡Se ha registrado el producto! ",
