@@ -1,295 +1,33 @@
 <template>
-  <div class="ma-3">
-    <v-row justify="space-between" class="ma-4"> 
-      <v-dialog  v-model="dialog"  > 
-        <v-card  flat elevation="0">
-          <v-toolbar
-            dark
-            color="grey lighten-2"
-            elevation="0" 
-          > 
-            <v-btn 
-              icon 
-              @click="dialog = false"
-            >
-              <v-icon color='black'>mdi-close</v-icon>
-            </v-btn>
-          </v-toolbar> 
-          <v-row justify="space-between" class="pl-10 pt-10 pb-2">
-            <div class="title font-weight-bold">Cliente</div>
-          </v-row>
-          <v-form >
-            <v-row class="pl-5 pr-5">
-                <v-col
-                  cols="6" 
-                >
-                  <v-text-field
-                     label="Nombres"
-                    required
-                    outlined
-                    color="#3fa7d6"
-                    dense
-                  ></v-text-field>
-                </v-col>
 
-                <v-col
-                  cols="6" 
-                >
-                  <v-text-field
-                     label="Apelidos"
-                    required
-                    outlined
-                    dense
-                    color="#3fa7d6"
-                  ></v-text-field>
-                </v-col>
-
-                <v-col
-                  cols="6" 
-                >
-                  <v-text-field
-                    label="Dirección"
-                    required
-                    outlined
-                    dense
-                    color="#3fa7d6" 
-                  ></v-text-field>
-                </v-col>
-                <v-col
-                  cols="6" 
-                >
-                  <v-text-field
-                    label="Número de teléfono"
-                    required
-                    outlined
-                    dense
-                    color="#3fa7d6" 
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-           </v-form>
-           <v-divider></v-divider>
-          <div class="pl-5 pt-3 title font-weight-bold">Detalle venta</div>
-          <v-list-item>
-            <v-card outlined color="#F1F4F7" width="100%" max-width="100%">
-              <v-list-item>
-                <v-list-item-content>
-                  <span class="subtitle-1 font-weight-bold">
-                    Agregar producto
-                  </span>
-                  <v-row>
-                    <v-col cols="6">
-                      <v-text-field
-                        color="#3fa7d6"
-                        dense
-                        v-model="barcode"
-                        :autofocus="autofocus"
-                        outlined
-                        v-on:keyup.enter="submit"
-                        label="Buscar por código de barras"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-autocomplete
-                        v-model="model"
-                        :items="listofProducts"
-                        dense
-                        outlined
-                        color="#3fa7d6"
-                        return-object
-                        item-text="name"
-                        item-value="id"
-                        clearable
-                        hide-no-data
-                        label="Buscar producto" 
-                        @click="clicking()"
-                        @change="change"
-                      ></v-autocomplete>
-                    </v-col>
-                  </v-row>
-                 
-                </v-list-item-content>
-              </v-list-item>
-              <div></div>
-            </v-card>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-content>
-              <div class="pb-10">
-                <v-simple-table fixed-header height="100%">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th class=" ">
-                        <div class="text-left subtitle-1 font-weight-medium">
-                          #Descripción
-                        </div>
-                      </th>
-                      <th class="text-left">
-                        <div class="subtitle-1 font-weight-medium">
-                          Cantidad
-                        </div>
-                      </th>
-                     <th class="text-right">
-                        <div class="subtitle-1 font-weight-medium">
-                          Tipo de venta
-                        </div>
-                      </th>
-                      <th class="text-right">
-                        <div class="subtitle-1 font-weight-medium">Precio</div>
-                      </th>
-                      <th class="text-right">
-                        <div class="subtitle-1 font-weight-medium">
-                          Subtotal
-                        </div>
-                      </th>
-                      <th class="text-right">
-                        
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="(item, index) in gettingProductsBarcode"
-                      :key="index"
-                    >
-                      <td class="text-right font-weight-medium">
-                        {{ index + 1 }}
-                      </td>
-                      <td class="text-left font-weight-medium">
-                       {{ item.name }}  {{ item.product_code }}
-                      </td>
-                      <td align="right" class="text-right font-weight-medium">
-                        <v-row class="mt-2" justify="end">
-                          <v-col cols="12" sm="12">
-                            <v-text-field
-                              type="number"
-                              dense
-                              color="#3fa7d6"
-                              outlined
-                              min="1"
-                              :max="item.stock"
-                              label="Cantidad"
-                              v-model.number="item.quanty"
-                              @change="sumPrecios(gettingProductsBarcode)"
-                            >
-                            </v-text-field>
-                          </v-col>
-                        </v-row>
-                      </td>
-                      <td align="right" class="text-right font-weight-medium">
-                      <v-row class="mt-2 ml-5" justify="end"> 
-                        <v-col cols="5">
-                          <v-select 
-                            class="mr-2"
-                            :items="typeOfSales"
-                            return-object
-                            :label="typeOfSale"
-                            @change="selectTypeOfSale"
-                            required
-                            outlined
-                            dense
-                            v-model.trim="item.type_of_sale"
-                            item-value="id"
-                            color="#3fa7d6"
-                            item-text="name"> 
-                          </v-select>
-                        </v-col>
-                          <div class="mt-3">
-                          <v-btn 
-                            @click="dialogTypeOfsale= true"
-                            x-small
-                            dark
-                            fab
-                            color="green"
-                          >
-                            <v-icon dark> mdi-plus </v-icon>
-                          </v-btn>
-                        </div>
-                        
-                      </v-row> 
-                      </td>
-                      <td :class=" (typeof item.type_of_sale === 'number') ? 'text-right font-weight-medium' :  item.type_of_sale.id > 19 ? 'text-right green--text font-weight-medium' :'text-right font-weight-medium'">
-                        {{ (typeof item.type_of_sale === 'number') ? item.price : item.type_of_sale.id > 19 ? item.wholesale_price : item.price}} GTQ {{(typeof item.type_of_sale === 'number') ? "" : item.type_of_sale.id > 19 ? "*"  : ""}}
-                      </td>
-                      <td class="text-right font-weight-medium">
-                        {{ ((typeof item.type_of_sale === 'number') ? item.price : item.type_of_sale.id > 19 ? item.wholesale_price : item.price) * item.quanty }} GTQ
-                      </td>
-                      <td>
-                        <v-btn
-                          class="mx-2"
-                          dark
-                          small
-                          elevation="0"
-                          color="red accent-3" 
-                          @click="deleteProduct(item.id)"
-                        >
-                          <v-icon small dark> mdi-trash-can </v-icon>
-                        </v-btn>
-                      </td>
-                    </tr>
-                  </tbody>
-                </v-simple-table>
-                
-                <div
-                  class="font-weight-bold title  mt-5"
-                  style="margin-right: 20px !important; float: right"
-                >
-                  Total {{ sumPrecios(gettingProductsBarcode) }} GTQ
-                </div>  
-              </div>
-              <v-row justify="end">
-                <v-col cols="3">
-                  <v-select 
-                    class="mr-5"
-                    :items="typeOfPayments"
-                    return-object
-                    label="Tipo de pago"
-                    @change="selectTypeOfPayment"
-                    required
-                    outlined
-                    dense 
-                    item-value="id"
-                    color="#3fa7d6"
-                    v-model="typeOfPayment"
-                    item-text="name"> 
-                  </v-select> 
-                </v-col>
-              </v-row> 
-              <v-card outlined color="grey lighten-4">
-                <v-card-actions justify="center">
-                  <v-spacer></v-spacer>
-                  <div>
-                    <v-btn @click="(dialog = false)" class="ma-2" elevation="0" color="grey" dark>
-                      Cancelar
-                    </v-btn>
-                    <v-btn
-                      :disabled="dialogForm"
-                      :loading="dialogForm"
-                      color="#3fa7d6"
-                      dark
-                      elevation="0"
-                      @click="(dialogForm = true), createSale()"
-                    >
-                      Guardar
-                    </v-btn>
-                  </div>
-                </v-card-actions>
-              </v-card>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-content>
-              <v-row
-                class="mb-3"
-                justify="end"
-                style="margin-right: 100px !important"
-              >
-              </v-row>
-            </v-list-item-content>
-          </v-list-item>
-        </v-card>
-      </v-dialog>
+  <div >
+  <v-footer fixed class="pa-6">
+    <v-row justify="end">   
+          <div>
+            <v-row>
+                <v-card @click="dialogCobro = true" style="margin-right: 10px; " class="align-center d-flex align-center pa-6">
+                  <div  class="font-weight-bold display-1 d-flex align-center mt-3" >
+                    <v-row>
+                      <div>
+                      <img src="@/assets/img/carrito.png" style="height: 35px;" class="mb-3 mr-2">
+                    </div>
+                      <div class="font-weight-bold headline" style="color: #2ec4b6;">
+                        Cobrar
+                      </div>
+                    </v-row> 
+                  </div> 
+                </v-card> 
+  
+              <v-card class="d-flex align-center pa-6" style="margin-right: 20px;" outlined>
+                <div class="font-weight-bold display-1 d-flex align-center blue--text">
+                  {{ sumPrecios(gettingProductsBarcode).toFixed(2) }} GTQ
+                </div> 
+              </v-card> 
+            </v-row> 
+          </div> 
+    </v-row> 
+  </v-footer>
+    <v-row justify="space-between" class="mt-4"> 
     </v-row>
     <v-dialog v-model="dialogForm" hide-overlay persistent width="300">
       <v-card color="#3fa7d6" dark>
@@ -328,7 +66,184 @@
         </v-card>
       </v-card>
     </v-dialog> 
-    <v-card class="mr-5 ml-5">
+    <div class=" mr-5 ml-5 ">
+      <v-card  outlined elevation="0">
+        <v-tabs 
+          v-model="tab" 
+          color="#26547c" 
+        >
+          <v-tabs-slider color="#26547c"></v-tabs-slider> 
+          <v-tab ><v-icon class="mr-3"  >mdi-file-document-multiple-outline</v-icon>Nueva</v-tab>
+          <v-tab><v-icon class="mr-3" >mdi-text-box-edit-outline</v-icon>Modificar</v-tab>
+          
+          <v-tab><v-icon class="mr-3" >mdi-file-document-remove</v-icon>Eliminar</v-tab>
+          <v-tab><v-icon class="mr-3" >mdi-table-search</v-icon>Verificador</v-tab>
+        </v-tabs>
+      </v-card>
+      <v-tabs-items v-model="tab">
+      <v-tab-item>
+      <v-card  flat elevation="0">  
+        <v-card outlined color="#F1F4F7">
+          <v-list-item>
+            <v-list-item-content> 
+              <v-row>
+                <v-col cols="6">
+                  <v-text-field
+                    color="#3fa7d6"
+                    dense
+                    hide-details
+                    prepend-inner-icon="mdi-barcode-scan" 
+                    v-model="barcode"
+                    :autofocus="autofocus"
+                    solo
+                    v-on:keyup.enter="submit"
+                    label="Buscar por código de barras"
+                  ></v-text-field>
+                </v-col> 
+              </v-row>
+              
+            </v-list-item-content>
+          </v-list-item> 
+        </v-card>
+        
+          <v-divider></v-divider>
+ 
+          <v-list-item>
+            <v-list-item-content>
+              <div class="pb-10">
+                <v-simple-table fixed-header height="100%">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th class=" ">
+                        <div class="text-left subtitle-1 font-weight-medium">
+                          #Descripción
+                        </div>
+                      </th>
+                      <th class="text-left">
+                        <div class="subtitle-1 font-weight-medium">
+                          Cantidad
+                        </div>
+                      </th>
+                    <!-- <th class="text-right">
+                        <div class="subtitle-1 font-weight-medium">
+                          Tipo de venta
+                        </div>
+                      </th>-->
+                      <th class="text-right">
+                        <div class="subtitle-1 font-weight-medium">Precio</div>
+                      </th>
+                      <th class="text-right">
+                        <div class="subtitle-1 font-weight-medium">
+                          Subtotal
+                        </div>
+                      </th>
+                      <th class="text-right">
+                        
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(item, index) in gettingProductsBarcode"
+                      :key="index"
+                    >
+                      <td class="text-right font-weight-medium">
+                        {{ index + 1 }}
+                      </td>
+                      <td class="text-left font-weight-medium">
+                       {{ item.name }}  {{ item.filling }}
+                      </td>
+                      <td align="right" class="text-right font-weight-medium">
+                        <v-row class="mt-2" justify="end">
+                          <v-col cols="12" sm="12">
+                            <v-text-field
+                              type="number"
+                              dense
+                              color="#3fa7d6"
+                              outlined
+                              min="1"
+                              :max="item.stock"
+                              label="Cantidad"
+                              v-model.number="item.quanty"
+                              @change="sumPrecios(gettingProductsBarcode)"
+                            >
+                            </v-text-field>
+                          </v-col>
+                        </v-row>
+                      </td>
+                     <!-- <td align="right" class="text-right font-weight-medium">
+                      <v-row class="mt-2 ml-5" justify="end"> 
+                        <v-col cols="5">
+                          <v-select 
+                            class="mr-2"
+                            :items="typeOfSales"
+                            return-object
+                            :label="typeOfSale"
+                            @change="selectTypeOfSale"
+                            required
+                            outlined
+                            dense
+                            v-model.trim="item.type_of_sale"
+                            item-value="id"
+                            color="#3fa7d6"
+                            item-text="name"> 
+                          </v-select>
+                        </v-col>
+                          <div class="mt-3">
+                          <v-btn 
+                            @click="dialogTypeOfsale= true"
+                            x-small
+                            dark
+                            fab
+                            color="green"
+                          >
+                            <v-icon dark> mdi-plus </v-icon>
+                          </v-btn>
+                        </div>
+                        
+                      </v-row> 
+                      </td>--> 
+                      <td class=" text-right font-weight-medium">
+                        {{  item.price }} GTQ 
+                      </td>
+                      <td class="text-right font-weight-medium">
+                        {{  item.price * item.quanty }} GTQ
+                      </td>
+                      <td>
+                        <v-btn
+                          class="mx-2"
+                          dark
+                          small
+                          elevation="0"
+                          color="red accent-3" 
+                          @click="deleteProduct(item.id)"
+                        >
+                          <v-icon small dark> mdi-trash-can </v-icon>
+                        </v-btn>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-simple-table>
+                 
+              </div> 
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content>
+              <v-row
+                class="mb-3"
+                justify="end"
+                style="margin-right: 100px !important"
+              >
+              </v-row>
+            </v-list-item-content>
+          </v-list-item>
+        </v-card>
+      </v-tab-item>
+      </v-tabs-items>
+    </div>
+    <v-card  v-if="show"  class="mr-5 ml-5">
       <v-card>
         <v-sheet
             class="v-sheet--offset "
@@ -629,6 +544,105 @@
       </v-dialog>
     </div>
 
+    <div class="text-center">
+    <v-dialog
+      transition="dialog-bottom-transition"
+      v-model="dialogCobro"
+      width="500"
+    > 
+      <v-card>
+        <v-card-title class="text-h5 grey lighten-2">
+          Cobrar
+        </v-card-title>
+        <div class="d-flex align-center">
+          <v-card-text  class="center-text display-1 mt-3 font-weight-medium blue--text">
+            {{ sumPrecios(gettingProductsBarcode).toFixed(2) }} GTQ
+          </v-card-text>
+        </div>
+
+        <v-card class="mb-10" outlined>
+          <v-tabs
+            v-model="tab2" 
+            centered
+            color="#2ec4b6" 
+            icons-and-text
+            grow
+          >
+          <v-tabs-slider></v-tabs-slider> 
+            <v-tab>
+              Efectivo
+              <v-icon>mdi-cash-multiple</v-icon>
+            </v-tab> 
+            <v-tab  >
+              Crédito
+              <v-icon>mdi-account-credit-card</v-icon>
+            </v-tab> 
+          </v-tabs>
+
+          <v-tabs-items v-model="tab2">
+            <v-tab-item  class="ma-7"> 
+              <table>
+                <tr>
+                  <td>
+                    <div class="mt-2 mr-2 font-weight-bold ">
+                        Pagó con:
+                      </div> 
+                  </td>
+                  <td>
+                    <v-text-field 
+                      v-model.number="totalSaleDetail" 
+                      hide-details
+                      prefix="Q." 
+                      color="#26547c"
+                      required
+                      outlined
+                      dense 
+                      @change="restDiference"
+                    ></v-text-field>
+                    </td>
+                </tr>
+                <tr >
+                  <td>
+                    <div class="mt-5 mr-2 font-weight-bold ">
+                        Cambio:
+                      </div> 
+                  </td>
+                  <td>
+                    <v-text-field 
+                      class="mt-5" 
+                      hide-details
+                      prefix="Q." 
+                      color="#26547c"
+                      readonly
+                      dense 
+                      v-model.number="exchange"
+                    ></v-text-field>
+                    </td>
+                </tr>
+              </table>
+            </v-tab-item>
+              <v-tab-item> 
+                <v-card-text>text</v-card-text>
+            </v-tab-item>
+          </v-tabs-items>
+        </v-card>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="dialogCobro = false"
+          >
+            Cobrar
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
+
 
   </div>
 </template>
@@ -646,6 +660,11 @@ export default {
   },
   data() {
     return {
+      tab2: null,
+      dialogCobro: false,
+      bid:"",
+      show: false,
+      tab: null,
       typeOfPayment: 1,
       disabledForPrint: false,
       dialogInvoice: false,
@@ -715,11 +734,19 @@ export default {
           "id": 3, "name": "Crédito"
         }
 
-      ]
+      ],
+      barc: [],
+      filterProducts: [],
+      totalSaleDetail: "",
+      exchange: ""
     };
   },
 
   created() {
+    this.bid = localStorage.getItem('bo');
+
+    this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2)
+    console.log(this.totalSaleDetail)
     this.getProducts();
     this.getSales();
     this.numberWithCommas(this.sumTotalSales(this.detailSale));
@@ -736,9 +763,14 @@ export default {
 
   methods: {
 
+    charge(){
+
+    },
+
     selectTypeOfPayment(p){
       this.typeOfPayment = p.id;
     },
+
 
     printing(){
       this.disabledForPrint = true;
@@ -746,6 +778,7 @@ export default {
       setTimeout(() => (window.print()), 1000 ); 
       setTimeout(() => (this.disabledForPrint = false), 1000 ); 
     },
+
     getProducts() {
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios
@@ -766,36 +799,58 @@ export default {
       this.getProduct();
     },
 
-    getProduct() {
+    getProduct() { 
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios
-        .get(`${API}api/sales/product/?barcode=${this.barcode}`, { headers })
-        .then((response) => {
-          console.log(response.data, "data");
-          if (response.data.length > 0) {
-            const detailSale = {
-              id: response.data[0].id,
-              name: response.data[0].name,
-              quanty: 1,
-              stock: response.data[0].stock,
-              price: response.data[0].sale_price,
-              wholesale_price: response.data[0].wholesale_price,
-              subtotal: response.data[0].sub_total,
-              product_code: response.data[0].product_code.code,
-              type_of_sale: 19,
-            };
+        .get(`${API}api/sales/branch-office-cat/${this.bid}/`, { headers })
+        .then((response) => { 
+          
+          if (response.data.list_products.length > 0) { 
+            this.barc = response.data.list_products;
+            this.filterProducts = this.barc.find(element => element.barcode == this.barcode || element.name.toLowerCase() == this.barcode.toLowerCase() || element.code.toLowerCase() == this.barcode.toLowerCase()); 
+            if (this.filterProducts) {
+              const detailSale = {
+                id: this.filterProducts.id,
+                name: this.filterProducts.name,
+                quanty: 1,
+                stock: this.filterProducts.stock,
+                price: this.filterProducts.sale_price,
+                wholesale_price: this.filterProducts.wholesale_price,
+                subtotal: this.filterProducts.sub_total,
+                code: this.filterProducts.code,
+                filling: this.filterProducts.filling,  
+              };
 
-            var obj = {};
-            obj["id"] = detailSale.id;
-            obj["name"] = detailSale.name;
-            obj["quanty"] = detailSale.quanty;
-            obj["stock"] = detailSale.stock;
-            obj["price"] = detailSale.price;
-            obj["wholesale_price"] = detailSale.wholesale_price;
-            obj["sub_total"] = detailSale.subtotal;
-            obj["type_of_sale"] = detailSale.type_of_sale;
-            obj["product_code"] = detailSale.product_code;
+              var obj = {};
+              obj["id"] = detailSale.id;
+              obj["name"] = detailSale.name;
+              obj["quanty"] = detailSale.quanty;
+              obj["stock"] = detailSale.stock;
+              obj["price"] = detailSale.price;
+              obj["wholesale_price"] = detailSale.wholesale_price;
+              obj["sub_total"] = detailSale.subtotal; 
+              obj["code"] = detailSale.code;
+              obj["filling"] = detailSale.filling;
+              this.gettingProductsBarcode.push(obj); 
+              this.barcode = ""
+              this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2)
+              this.exchange = this.totalSaleDetail - this.totalSaleDetail;
+              console.log(this.totalSaleDetail, " total ");
+            } else { 
+              this.$swal.fire({
+                title: 'Detalle venta',
+                text: "¡Producto no encontrado!",
+                icon: 'warning',
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Aceptar' 
+              })
+              this.barcode = ""
+            }
+ 
+          }
 
+          /*if (response.data.length > 0) { 
             if (obj["stock"] <=1) {
               this.errorProductStock();
               this.gettingProductsBarcode.push(obj); 
@@ -808,10 +863,7 @@ export default {
 
           } else{
             this.errorNotifyVue()
-          }
-
-          console.log(this.gettingProductsBarcode, "response barcode with obj");
-          this.barcode = "";
+          }*/
         })
         .catch((error) => {
           console.log(error);
@@ -821,67 +873,15 @@ export default {
     },
 
 
-    getProductName() {
-      let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios
-        .get(`${API}api/sales/product-name/?name=${this.model}`, { headers })
-        .then((response) => {
-          console.log(response.data, "data");
-          if (response.data.length > 0) {
-            const detailSale = {
-              id: response.data[0].id,
-              name: response.data[0].name,
-              quanty: 1,
-              stock: response.data[0].stock,
-              price: response.data[0].sale_price,
-              wholesale_price: response.data[0].wholesale_price,
-              subtotal: response.data[0].sub_total,
-              product_code: response.data[0].product_code.code,
-              type_of_sale: 19,
-            };
-
-            var obj = {};
-            obj["id"] = detailSale.id;
-            obj["name"] = detailSale.name;
-            obj["quanty"] = detailSale.quanty;
-            obj["stock"] = detailSale.stock;
-            obj["price"] = detailSale.price;
-            obj["wholesale_price"] = detailSale.wholesale_price;
-            obj["sub_total"] = detailSale.subtotal;
-            obj["type_of_sale"] = detailSale.type_of_sale;
-            obj["product_code"] = detailSale.product_code;
-
-            if (obj["stock"] <=1) {
-              this.errorProductStock();
-              this.gettingProductsBarcode.push(obj); 
-            } else if (obj["stock"] <=10) {
-              this.warningProductStock(obj["stock"])
-              this.gettingProductsBarcode.push(obj); 
-            } else {
-              this.gettingProductsBarcode.push(obj); 
-            }
-
-          } else{
-            this.errorNotifyVue()
-          }
-
-          console.log(this.gettingProductsBarcode, "response barcode with obj");
-          this.barcode = "";
-        })
-        .catch((error) => {
-          console.log(error);
-          this.errored = true;
-        })
-        .finally(() => (this.loading = false));
+    restDiference(){ 
+      this.exchange = this.totalSaleDetail - this.sumPrecios(this.gettingProductsBarcode).toFixed(2);
+      return this.exchange.toFixed(2);
     },
+
 
     sumPrecios(items) {
       return items.reduce((a, b) => {
-        return a + Number((typeof b["type_of_sale"] === "number" 
-        ? b["price"] 
-        : b["type_of_sale"].id> 19 
-        ? b["wholesale_price"] 
-        : b["price"]) * b["quanty"]);
+        return a + Number((b["price"]) * b["quanty"]);
       }, 0);
     },
 
@@ -1086,17 +1086,7 @@ export default {
       console.log("clicking");
     },
 
-    change(t){ 
-      console.log(t.barcode.length, " barcode");
-      if (t.barcode == "") {
-        console.log("yes is null");
-        this.model = t.name 
-        this.getProductName(); 
-      } else { 
-        this.barcode = t.barcode;  
-        this.getProduct();
-      }
-    },
+ 
 
     fixedDate(d){
       var options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -1159,5 +1149,27 @@ export default {
 .row + .row {
     margin-top: 0px;
 }
+
+
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 90%;
+}
+
+td, th {
+  border: 0px solid #dddddd;
+  text-align: right;
+  padding: 5px;
+}
+ 
+
+ .center-div{ 
+    /* Center vertically and horizontally */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -25px 0 0 -25px;
+ }
 
 </style>
