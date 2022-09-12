@@ -3,20 +3,18 @@ import routes from "./routes";
  
 
 // configure router
-const router = new VueRouter({ 
-    mode: 'history',
+const router = new VueRouter({  
     routes, // short for routes: routes
-    linkExactActiveClass: "nav-item active"
+    linkExactActiveClass: "nav-item active",
 });
  
-router.beforeEach((to, from, next) => { 
- const bo = localStorage.getItem('bo')
-  const user = localStorage.getItem('user')
-  console.log(user);
-  if (user || to.name === 'Login') {
-    next()
+router.beforeEach((to, from, next) => {  
+  const user = localStorage.getItem("user");
+  console.log(user, " user ");
+  if (user || to.name === "Login") {
+    next();
     } else {
-        next({ name: 'Login' });
+        next({ name: "Login" });
     }
 });
 

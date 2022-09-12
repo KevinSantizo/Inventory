@@ -21,7 +21,7 @@
       </sidebar-link>
       <sidebar-link to="/proveedores">
         <v-icon color="white" size="25">mdi-account-group</v-icon>
-        <p>Proveedores</p>
+        <p>Créditos</p>
       </sidebar-link>
       <sidebar-link to="/compras">
         <v-icon color="white" size="25">mdi-cash-check</v-icon>
@@ -54,7 +54,7 @@ export default {
   data() {
     return {
       sidebarBackground: "green",
-      sidebarBackgroundImage: require("@/assets/img/sidebar-2.jpg"),
+      sidebarBackgroundImage: require("@/assets/img/paradise.jpg"),
     };
   },
 };

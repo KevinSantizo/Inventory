@@ -29,7 +29,7 @@
                     @click="logOut()"
                   >
                     <h4>Salir</h4>
-                    <md-icon>exit_to_app</md-icon>
+                    <v-icon>mdi-logout</v-icon>
                   </md-button>
                 </div>
               </a>

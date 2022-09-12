@@ -13,8 +13,7 @@
       </a>
 
       <a
-        href="https://www.creative-tim.com/product/vue-material-dashboard"
-        target="_blank"
+        href="#" 
         class="simple-text logo-normal"
       >
         {{ title }}
@@ -51,7 +50,7 @@ export default {
     },
     sidebarBackgroundImage: {
       type: String,
-      default: require("@/assets/img/sidebar-2.jpg"),
+      default: require("@/assets/img/paradise.jpg"),
     },
     imgLogo: {
       type: String,

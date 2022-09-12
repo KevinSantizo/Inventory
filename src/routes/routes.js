@@ -32,7 +32,7 @@ const routes = [
       },
       {
         path: "proveedores",
-        name: "Proveedores",
+        name: "Créditos",
         component: Typography,
       },
       {
