@@ -31,7 +31,7 @@
         class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-25"
       >
         <stats-card data-background-color="green">
-          <template slot="header">
+          <template slot="header" >
             <v-icon color="white" size="25">mdi-package-variant-closed</v-icon>
           </template>
 
@@ -64,7 +64,7 @@
           </template>
 
           <template slot="content">
-            <p class="category">Proveedores</p>
+            <p class="category">Créditos</p>
             <h3 class="title">{{suppliers}}</h3>
           </template>
         </stats-card>
@@ -335,10 +335,52 @@ export default {
     const theDataDay = []; 
  
     await axios.get(`${API}api/sales/sales-by-day/?branch_office=${this.bid}`).then((response) => {
-      this.salesByDay = response.data.slice(-7); 
+      this.salesByDay = response.data.slice(-7);  
       this.salesByDay.map(entry => {
           this.parsedEntrySalesDay = entry.sales.filter((s)=> s.branch_office == this.bid);
-          labelsDay.push(entry.day.toUpperCase().substring(0, 1));  
+          console.log(entry.day.toUpperCase() , " day ");
+ 
+          switch (entry.day.toUpperCase().substring(0, 3)) {
+
+            case "SUN":
+              labelsDay.push("DOMINGO");  
+            
+            break; 
+
+            case "MON":
+              labelsDay.push("LUNES");  
+              
+            break;
+          
+            case "TUE":
+              labelsDay.push("MARTES");  
+            
+            break;
+          
+            case "WED":
+              labelsDay.push("MIERCOLES");  
+            
+            break;
+            
+            case "THU":
+              labelsDay.push("JUEVES");  
+            
+            break;
+
+            case "FRI":
+              labelsDay.push("VIERNES");  
+            
+            break;
+
+            case "SAT":
+              labelsDay.push("SABADO");  
+            
+            break;
+
+          
+            default:
+              break;
+          }  
           theDataDay.push(this.parsedEntrySalesDay.length)
         }); 
  
@@ -351,8 +393,8 @@ export default {
       labels: labels,
       datasets: [{
         label: "Ventas por mes",
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgb(54, 162, 235)',
         borderWidth: 1,
         data: theData,
       }]
@@ -386,8 +428,8 @@ export default {
       labels: labelsDay,
       datasets: [{
         label: "Ventas por día",
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',
+        borderColor:  'rgb(153, 102, 255)',
         borderWidth: 1,
         fill: true,
         tension: 0.3,
@@ -510,8 +552,7 @@ export default {
 
     notifyVue(verticalAlign, horizontalAlign) {
       this.$notify({
-        message: "¡Se ha registrado el recordatorio! ",
-        icon: "check",
+        message: "¡Se ha registrado el recordatorio! ", 
         horizontalAlign: horizontalAlign,
         verticalAlign: verticalAlign,
         type: "success",

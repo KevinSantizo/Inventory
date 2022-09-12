@@ -209,7 +209,7 @@ export default {
         total: null,
         receipt: "",
         supplier: null,
-        branch_office: 1,
+        branch_office: "",
       },
       suplierName: "Proveedor*",
       suppliers: [],
@@ -219,6 +219,7 @@ export default {
       supplierProductForm: {
         supplier_name: "",
         phone: "",
+        branch_office: "",
       },
       headersShopping: [
         {
@@ -243,13 +244,17 @@ export default {
           text: 'Total',
           align: 'center',
           sortable: false,
-          value: 'date' 
+          value: 'date',
+          bid: "" 
         }, 
       ],
     }
   },
 
   created() {
+    this.bid = localStorage.getItem('bo');  
+    this.shopping.branch_office = this.bid;
+    this.supplierProductForm.branch_office = this.bid;
     this.getSuppliers(); 
     this.getShoppings();
     this.sumTotalShopping(this.shoppings);
@@ -266,8 +271,8 @@ export default {
   methods: {
     getSuppliers() {
       let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/supplier/`, { headers }).then((response) => {
-        this.suppliers = response.data;
+      axios.get(`${API}api/sales/branch-office-s/${this.bid}/`, { headers }).then((response) => {
+        this.suppliers = response.data.list_suppliers;
         this.suppliers.reverse();
       });
     },
@@ -316,7 +321,7 @@ export default {
     notifyVue(verticalAlign, horizontalAlign) {
       this.$notify({
         message: "¡Se ha registrado la compra! ",
-        icon: "check",
+        
         horizontalAlign: horizontalAlign,
         verticalAlign: verticalAlign,
         type: "success",
@@ -325,8 +330,8 @@ export default {
 
     getShoppings(){
       let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/shopping/`, { headers,}).then((response) => {
-        this.shoppings = response.data; 
+      axios.get(`${API}api/sales/branch-office-sh/${this.bid}/`, { headers,}).then((response) => {
+        this.shoppings = response.data.shoppings; 
         this.shoppings.reverse();
         return response.data
       }).catch((error) => {
