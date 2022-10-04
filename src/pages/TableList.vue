@@ -140,6 +140,18 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogLoading" hide-overlay persistent width="300">
+      <v-card color="#3fa7d6" dark>
+        <v-card-text>
+          Cargando, por favor espera...
+          <v-progress-linear
+            indeterminate
+            color="white"
+            class="mb-0"
+          ></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="dialogForm" hide-overlay persistent width="300">
       <v-card color="#3fa7d6" dark>
         <v-card-text>
@@ -198,6 +210,7 @@
               </v-text-field> 
             </div>
             <v-divider></v-divider> 
+            <div v-if="this.log.length<2">
               <v-row justify="center" class="mt-4 mb-1">
                 <div class="display-1 center">
                   {{productVerifyName}} {{productVerifyFilling}} 
@@ -214,11 +227,47 @@
                 Q {{productVerifyPrice}}
               </div>
             </v-row>  
+          </div>
+          <div v-else>
+            <v-list>
+              <v-list-item-group
+                v-model="model"
+                mandatory
+                color="#2ec4b6"
+              >
+                <v-list-item
+                  v-for="(item, i) in this.log"
+                  :key="i" 
+                > 
+                  <v-list-item-content>
+                    <v-list-item-title>{{item.name}} {{item.filling}}</v-list-item-title>
+                    <v-list-item-subtitle>Existencia: {{item.stock}}</v-list-item-subtitle>
+                    <v-list-item-subtitle>Precio: Q{{item.sale_price}}</v-list-item-subtitle>
+                 
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn 
+                      color="#2ec4b6"
+                      dark
+                      outlined
+                      min-width="200"
+                      elevation="0"
+                      @click="addToSale(item.barcode)" 
+                    >
+                      <v-icon dark class="mr-3"> mdi-check </v-icon>
+                      Agregar a venta
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </div>
           </v-card-text> 
           <v-card outlined color="grey lighten-4">
             <v-card-actions > 
               <v-row justify="space-between" class="ma-3"> 
                 <v-btn 
+                  v-show="this.log.length<2"
                   color="#2ec4b6"
                   dark
                   min-width="200"
@@ -228,7 +277,10 @@
                   <v-icon dark class="mr-3"> mdi-chevron-left </v-icon>
                   Cancelar
                 </v-btn>
+                <v-spacer></v-spacer>
+                
                 <v-btn 
+                  v-if="this.log.length<2"
                   color="#2ec4b6"
                   dark
                   min-width="200"
@@ -238,12 +290,83 @@
                   <v-icon dark class="mr-3"> mdi-check </v-icon>
                   Agregar a venta
                 </v-btn>
+                <v-btn 
+                  v-else
+                  color="#2ec4b6"
+                  dark
+                  min-width="200"
+                  elevation="0"
+                  @click="(showVerifier = false)" 
+                >
+                  <v-icon dark class="mr-3"> mdi-check </v-icon>
+                  Aceptar
+                </v-btn>
               </v-row>
 
             </v-card-actions>
           </v-card> 
         </v-card> 
       </v-dialog> 
+      <v-dialog width="700" v-model="dialogGreatherThanOneProduct">
+        <v-card>
+          <v-card-title class="text-h5 grey lighten-2">
+            Productos encontrados 
+          </v-card-title>
+          <v-divider></v-divider> 
+          <div>
+            <v-list>
+              <v-list-item-group
+                v-model="model"
+                mandatory
+                color="#2ec4b6"
+              >
+                <v-list-item
+                  v-for="(item, i) in this.newProductsFeature"
+                  :key="i" 
+                > 
+                  <v-list-item-content>
+                    <v-list-item-title>{{item.name}} {{item.filling}}</v-list-item-title>
+                    <v-list-item-subtitle>Existencia: {{item.stock}}</v-list-item-subtitle>
+                    <v-list-item-subtitle>Precio: Q{{item.sale_price}}</v-list-item-subtitle>
+                 
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn 
+                      color="#2ec4b6"
+                      dark
+                      min-width="200"
+                      outlined
+                      elevation="0"
+                      @click="addToSale(item.barcode)" 
+                    >
+                      <v-icon dark class="mr-3"> mdi-check </v-icon>
+                      Agregar a venta
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </div>
+          <v-card outlined color="grey lighten-4">
+            <v-card-actions > 
+              <v-row justify="space-between" class="ma-3"> 
+                <v-spacer></v-spacer>
+                <v-btn 
+                  color="#2ec4b6"
+                  dark
+                  min-width="200"
+                  elevation="0"
+                  @click="(dialogGreatherThanOneProduct = false)" 
+                >
+                  <v-icon dark class="mr-3"> mdi-check </v-icon>
+                  Aceptar
+                </v-btn>
+              </v-row>
+
+            </v-card-actions>
+          </v-card> 
+        </v-card>
+      </v-dialog>
       <v-dialog width="700" v-model="moneyIncomeDialog"> 
         <v-card >  
           <v-card-title class="text-h5 grey lighten-2">
@@ -526,7 +649,7 @@
                 v-model="barcode"
                 :autofocus="autofocus"
                 solo
-                v-on:keyup.enter="submit"
+                v-on:keyup.enter="searchArrayNewProductsFeature"
                 label="Buscar por código de barras"
               ></v-text-field>  
             </v-col> 
@@ -685,14 +808,8 @@
                         <div class="subtitle-1 font-weight-medium">
                           Cantidad
                         </div>
-                      </th>
-                      <th class="text-center">
-                        <div class="subtitle-1 font-weight-medium">
-                          Tipo de venta
-                        </div>
-                      </th>  
-                      <th></th>
-                      <th class="text-right">
+                      </th>   
+                      <th class="text-LEFT">
                         <div class="subtitle-1 font-weight-medium">Precio</div>
                       </th>
                       <th class="text-right">
@@ -734,78 +851,6 @@
                           </v-col>
                         </v-row>
                       </td>
-                 
-                      <td align="center" class="text-center font-weight-medium">
-                        <v-row class="mt-2 ml-5" justify="center"> 
-                          <v-col cols="6">
-                            <v-select 
-                              class="mr-2"
-                              :items="typeOfSales"
-                              return-object
-                              :label="typeOfSale"
-                              @change="selectTypeOfSale"
-                              required
-                              outlined
-                              dense
-                              v-model.trim="item.type_of_sale"
-                              item-value="id"
-                              color="#3fa7d6"
-                              item-text="name"> 
-                            </v-select>
-                          </v-col>
-                          <div class="mt-3">
-                            <v-btn 
-                              @click="dialogTypeOfsale= true"
-                              x-small
-                              dark
-                              fab
-                              color="green"
-                            >
-                              <v-icon dark> mdi-plus </v-icon>
-                            </v-btn>
-                          </div>
-                          
-                        </v-row> 
-                      </td> 
-                      <div v-if="(typeof item.type_of_sale == 'number')">
-                        <td v-if="!item.type_of_sale == 1"  align="center" class="text-center font-weight-medium">
-                          <v-row class="mt-2" justify="left">
-                            <v-col cols="6" sm="8">
-                              <v-text-field
-                                type="number"
-                                dense
-                                color="#3fa7d6"
-                                outlined
-                                min="1" 
-                                label="Unidades"
-                                v-model.number="item.unities"
-                                @change="sumPrecios(gettingProductsBarcode), sumTextField()"
-
-                                >
-                              </v-text-field>
-                            </v-col>
-                          </v-row>
-                        </td>  
-                      </div>
-                      
-                      <td v-else-if="item.type_of_sale.id != 1 "  align="center" class="text-center font-weight-medium">
-                        <v-row class="mt-2" justify="left">
-                          <v-col cols="6" sm="8">
-                            <v-text-field
-                              type="number"
-                              dense
-                              color="#3fa7d6"
-                              outlined
-                              min="1" 
-                              label="Unidades"
-                              v-model.number="item.unities"
-                              @change="sumPrecios(gettingProductsBarcode), sumTextField()"
-
-                              >
-                            </v-text-field>
-                          </v-col>
-                        </v-row>
-                      </td> 
                       <td class=" text-right font-weight-medium">
                         <v-row class="mt-2" justify="end">
                           <v-col cols="6" sm="12">
@@ -824,7 +869,7 @@
                         </v-row> 
                       </td>
                       <td class="text-right font-weight-medium">
-                        {{  item.price * item.quanty * item.unities }} GTQ
+                        {{  item.price * item.quanty  }} GTQ
                       </td>
                       <td>
                         <v-btn
@@ -865,18 +910,19 @@
                 <v-card @click="modal = true" outlined class="pa-2">
                   <v-icon> mdi-calendar-month </v-icon>  <span class="subtitle-1 ml-3 grey--text font-weight-medium">Ver por fecha</span> 
                 </v-card>
-                <v-dialog ref="dialog" v-model="modal" :return-value.sync="date" persistent width="300px">
+                <v-dialog ref="dialog" v-model="modal" :return-value.sync="dates" persistent width="300px">
                    
                   <v-date-picker 
                     ref="picker"
-                    v-model="date"  
+                    v-model="dates"  
                     locale="es-ES"  
                     scrollable 
+                    range
                     header-color="#1D3557" 
                     color="#1D3557">
                     <v-spacer></v-spacer>
                     <v-btn text color="#1D3557" @click="modal = false">Cancelar</v-btn>
-                    <v-btn text color="#1D3557" @click="$refs.dialog.save(date), getSaleByDate()">aceptar</v-btn>
+                    <v-btn text color="#1D3557" @click="$refs.dialog.save(dates), getSaleByDate()">aceptar</v-btn>
                   </v-date-picker>
                 </v-dialog>
               </v-col>
@@ -956,22 +1002,17 @@
                             <div class="text-center">
                               Descripción
                             </div>
-                          </th>
+                          </th> 
                           <th>
                             <div class="text-center">
                               Tipo de venta
                             </div>
-                          </th>
+                          </th> 
                           <th>
                             <div class="text-center">
                               Precio
                             </div>
-                          </th> 
-                          <th>
-                            <div class="text-center">
-                              Descuento
-                            </div>
-                          </th> 
+                          </th>  
                           <th>
                             <div class="text-center">
                               Subtotal
@@ -992,10 +1033,7 @@
                           </td> 
                           <td class="text-center font-weight-medium   ">
                             Q.{{item.product_sale_price }} 
-                          </td>
-                          <td class="text-center font-weight-medium   ">
-                            Q.{{ item.type_of_sale != "Unidad" ? ' --- ' : (item.quantity * item.product_sale_price) - item.sub_total}} 
-                          </td>
+                          </td>  
                           <td class="text-center font-weight-medium   ">
                             Q.{{ item.sub_total }} 
                           </td>
@@ -1043,22 +1081,17 @@
                               <div class="text-center">
                                 Descripción
                               </div>
-                            </th>
+                            </th> 
                             <th>
                               <div class="text-center">
                                 Tipo de venta
                               </div>
-                            </th>
+                            </th> 
                             <th>
                               <div class="text-center">
                                 Precio
                               </div>
-                            </th> 
-                            <th>
-                              <div class="text-center">
-                                Descuento
-                              </div>
-                            </th> 
+                            </th>  
                             <th>
                               <div class="text-center">
                                 Subtotal
@@ -1080,10 +1113,7 @@
 
                             <td class="text-center font-weight-medium   ">
                               Q.{{item.product_sale_price }} 
-                            </td>
-                            <td class="text-center font-weight-medium   ">
-                              Q.{{ item.type_of_sale != "Unidad" ? ' --- ' : (item.quantity * item.product_sale_price) - item.sub_total}} 
-                            </td>
+                            </td> 
                             <td class="text-center font-weight-medium   ">
                               Q.{{ item.sub_total }} 
                             </td>
@@ -1465,241 +1495,6 @@
         </v-data-table> 
       </v-card>
     </v-card>
-    <div class="text-center">
-      <v-dialog scrollable v-model="dialogDetailSale" width="800">
-        <v-card flat elevation="0">
-          <v-card-title class="text-h5 grey lighten-2">
-            Detalle de venta
-          </v-card-title>
-          <v-list-item>
-            <v-list-item-content>
-              <div>
-                <v-simple-table class="pa-5" fixed-header>
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th class=" ">
-                        <div class="text-left subtitle-1 font-weight-medium">
-                          #Descripción
-                        </div>
-                      </th>
-                      <th class="text-center">
-                        <div class="subtitle-1 font-weight-medium">
-                          Cantidad
-                        </div>
-                      </th>
-
-                      <th class="text-center">
-                        <div class="subtitle-1 font-weight-medium">
-                          Tipo de venta
-                        </div>
-                      </th>
-                      
-                      <th class="text-right">
-                        <div class="subtitle-1 font-weight-medium">Precio</div>
-                      </th>
-                      <th class="text-right">
-                        <div class="subtitle-1 font-weight-medium">
-                          Subtotal
-                        </div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(item, index) in detailSalesBySale" :key="index">
-                      <td class="text-right font-weight-medium grey--text">
-                        {{ index + 1 }}
-                      </td>
-                      <td class="text-left font-weight-medium">
-                        {{ item.product_name }} - {{ item.product_code }}
-                      </td>
-                      <td class="text-center font-weight-medium">
-                        {{ item.quantity }}
-                      </td>
-                      <td :class="item.type_of_sale_id == 1 || typeOfSaleId == 1 ?  'text-center font-weight-medium' : 'text-center green--text font-weight-medium' ">
-                        {{ item.type_of_sale }}
-                      </td>
-                      <td :class="item.type_of_sale_id == 1 || typeOfSaleId == 1 ?  'text-right font-weight-medium' : 'text-right green--text font-weight-medium' ">
-                        {{ item.type_of_sale_id > 1 ? item.product_wholesale_price : item.product_sale_price }} GTQ {{item.type_of_sale_id > 1 ? " (D)*": ""}}
-                      </td>
-                      <td :class="item.type_of_sale_id > 1 ? 'text-right green--text font-weight-medium' : 'text-right font-weight-medium' ">
-                        {{ item.sub_total }} GTQ {{item.type_of_sale_id > 1 ? "*": ""}}
-                      </td>
-                    </tr>
-                  </tbody>
-                </v-simple-table>
-
-                <div
-                  class="subtitle-1 font-weight-bold black--text"
-                  style="
-                    margin-right: 33px !important;
-                    margin-bottom: 100px;
-                    float: right;
-                  "
-                >
-                 Total {{ totalSale }} GTQ
-                </div>
-              </div>
-              <v-card class="mt-5" outlined color="grey lighten-3">
-                <v-card-actions justify="center">
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="#3fa7d6"
-                    dark
-                    elevation="0"
-                    @click="dialogDetailSale = false"
-                  >
-                    Aceptar
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-list-item-content>
-          </v-list-item>
-        </v-card>
-      </v-dialog>
-    </div>
-
-    <div class="text-center">
-      <v-dialog
-      fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"
-      v-model="dialogInvoice" width="800">
-      <v-card flat elevation="0">
-        <v-toolbar
-          dark
-          color="grey lighten-2"
-          elevation="0" 
-        > 
-          <v-btn
-            v-if="!disabledForPrint"
-            icon 
-            :disabled="disabledForPrint"
-            @click="dialogInvoice = false"
-          >
-            <v-icon :color="disabledForPrint ? 'white' : 'black' ">mdi-close</v-icon>
-          </v-btn>
-
-          <template v-slot:extension v-if="!disabledForPrint">
-              <v-fab-transition >
-                <v-btn 
-                  :disabled="disabledForPrint"
-                  class="mr-15"
-                  color="#2f4858"
-                  fab
-                  dark 
-                  absolute
-                  bottom
-                  right
-                  @click="printing"
-                >
-                  <v-icon>mdi-printer</v-icon>
-                </v-btn>
-              </v-fab-transition>
-            </template> 
-        </v-toolbar> 
-        
-        <div style="margin-right: 200px; margin-left: 200px;">
-          <v-list> 
-            <v-list-item>
-              <v-list-item-content>
-                <v-card-title class="text-h5 font-weight-bold">
-                  Comprobante de compra
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-card-title class="text-h5">
-                  Fecha
-                </v-card-title>
-                <v-card-subtitle class="title">
-                  yyyy/mm/dd
-                </v-card-subtitle> 
-                <v-card-title class="text-h5">
-                  Nombre de la Tienda 
-                </v-card-title>
-                <v-card-subtitle class="title">
-                  Dirección de la Tienda 
-                </v-card-subtitle> 
-                <v-card-title class="text-h5">
-                  Cliente
-                </v-card-title>
-                <v-card-subtitle class="title">
-                  Nombre cliente
-                </v-card-subtitle> 
-                <v-divider></v-divider>
-                <div>
-                  <v-simple-table class="pa-5" fixed-header>
-                    <thead>
-                      <tr>
-                        <th></th>
-                        <th class=" ">
-                          <div class="text-left subtitle-1 font-weight-medium">
-                            #Descripción
-                          </div>
-                        </th>
-                        <th class="text-center">
-                          <div class="subtitle-1 font-weight-medium">
-                            Cantidad
-                          </div>
-                        </th>
-
-                        <th class="text-center">
-                          <div class="subtitle-1 font-weight-medium">
-                            Tipo de venta
-                          </div>
-                        </th>
-                        
-                        <th class="text-right">
-                          <div class="subtitle-1 font-weight-medium">Precio</div>
-                        </th>
-                        <th class="text-right">
-                          <div class="subtitle-1 font-weight-medium">
-                            Subtotal
-                          </div>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(item, index) in detailSalesBySale" :key="index">
-                        <td class="text-right font-weight-medium grey--text">
-                          {{ index + 1 }}
-                        </td>
-                        <td class="text-left font-weight-medium">
-                          {{ item.product_name }} - {{ item.product_code }}
-                        </td>
-                        <td class="text-center font-weight-medium">
-                          {{ item.quantity }}
-                        </td>
-                        <td :class="item.type_of_sale_id == 1 || typeOfSaleId == 1 ?  'text-center font-weight-medium' : 'text-center green--text font-weight-medium' ">
-                          {{ item.type_of_sale }}
-                        </td>
-                        <td :class="item.type_of_sale_id == 1 || typeOfSaleId == 1 ?  'text-right font-weight-medium' : 'text-right green--text font-weight-medium' ">
-                          {{ item.type_of_sale_id > 1 ? item.product_wholesale_price : item.product_sale_price }} GTQ {{item.type_of_sale_id > 1 ? " (D)*": ""}}
-                        </td>
-                        <td :class="item.type_of_sale_id > 1 ? 'text-right green--text font-weight-medium' : 'text-right font-weight-medium' ">
-                          {{ item.sub_total }} GTQ {{item.type_of_sale_id > 1 ? "*": ""}}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </v-simple-table>
-
-                  <div
-                    class="subtitle-1 font-weight-bold black--text"
-                    style="
-                      margin-right: 33px !important;
-                      margin-bottom: 100px;
-                      float: right;
-                    "
-                  >
-                  Total {{ totalSale }} GTQ
-                  </div>
-                </div>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list> 
-        </div>
-        </v-card>
-      </v-dialog>
-    </div>
       <div class="text-center">
         <v-dialog
           transition="dialog-bottom-transition"
@@ -2169,8 +1964,7 @@ export default {
       timeBoxo: "",
       moneyOut: [],
       moneyIncome: [],
-      showBoxOpen: false,
-      dates: [' ', ''], 
+      showBoxOpen: false, 
       modal: false,
       date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       date2: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -2254,9 +2048,15 @@ export default {
       listPriceDiscount: [],
       objDiscount: {},
       disableTypeOfSaleDetail: false,
-      typeOfSaleNum: 0
+      typeOfSaleNum: 0,
+      newProductsFeature: [],
+      dialogGreatherThanOneProduct: false,
+      dates: ['', ''],
+      dialogLoading: false
+ 
     };
   },
+ 
 
 
   computed: {
@@ -2285,8 +2085,7 @@ export default {
     this.getCustomers();
     this.getBoxODataApi();
     this.getMoneyOut();
-    this.getMoneyIncome();
-    this.getSaleByDate();
+    this.getMoneyIncome(); 
     this.getBonusToday();
     this.getCreditsLuiquid();
     this.getCreditsToday();
@@ -2307,8 +2106,12 @@ export default {
   },
 
   methods: {
-
  
+
+    addToSale(barcode){ 
+      this.barcode = barcode;
+      this.getProduct();
+    },
 
     sumPrecios2(items) {
       return items.reduce((a, b) => {
@@ -2476,10 +2279,12 @@ export default {
     },
 
     getSaleByDate(){
+      this.dialogLoading = true;
       let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-sales-date/?date=${this.date}`, {headers}).then((r)=>{
+      axios.get(`${API}api/sales/branch-office-sales-date/?date_after=${this.dates[0]}&date_before=${this.dates[1]}`, {headers}).then((r)=>{
+       console.log(r.data, " data ")
         if (r.data.length > 0) {
-          
+          this.dialogLoading = false;
           this.salesByDatePicker = r.data.filter((s)=> s.branch_office.id == this.bid);
 
           this.salesByDatePicker.reverse(); 
@@ -2487,6 +2292,8 @@ export default {
           this.totalSalesToday = this.salesByDatePicker;
         } else {
           console.log("si entra");
+          this.dialogLoading = false;
+
         }
 
        })
@@ -2638,6 +2445,7 @@ export default {
       });
 
       this.log = filtered;
+      console.log(this.log, " products ");
       switch (this.log.length) {
         case 0:
           this.$swal.fire({
@@ -2664,40 +2472,123 @@ export default {
     } 
 },
 
- searchItem() {
-  let filtered = [];  
-  if (this.barcode) {
-    filtered = this.listofProducts.filter((el) => {
-      return Object.values(el).some((val) =>
-        String(val).toLowerCase().includes(this.barcode)
-      );
-    });
+searchArrayNewProductsFeature(e) {
+    e.preventDefault();
+    let filtered = [];
+    const input = e.target.value.toLowerCase();
+    if (input || this.barcode) {  
+      filtered = this.listofProducts.filter((el) => {
+        return Object.values(el).some((val) =>
+          String(val).toLowerCase().includes(input)
+        );
+      });
 
-    this.log = filtered;
-      switch (this.log.length) {
-      case 0:
-        this.$swal.fire({
-          title: 'Verificador de producto',
-          text: "¡Producto no encontrado!",
-          icon: 'warning',
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Aceptar' 
-        })
-      break;
-
-      case 1:   
-        this.productVerifyName = this.log[0].name; 
-        this.productVerifyFilling = this.log[0].filling;  
-        this.productVerifyStock = `Existencia: ${this.log[0].stock}`;
-        this.productVerifyPrice = this.log[0].cost_price;   
-       break;
-    
-      default:
+    this.newProductsFeature = filtered;
+      console.log(this.newProductsFeature, " products ");
+      switch (this.newProductsFeature.length) {
+        case 0:
+          this.$swal.fire({
+            title: 'Detalle venta',
+            text: "¡Producto no encontrado!",
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar' 
+          })
         break;
+
+        case 1: 
+        const detailSale = {
+            id: this.newProductsFeature[0].id,
+            name: this.newProductsFeature[0].name,
+            quanty: 1,
+            stock: this.newProductsFeature[0].stock,
+            min_stock: this.newProductsFeature[0].min_stock,
+            max_stock: this.newProductsFeature[0].max_stock, 
+            price: this.newProductsFeature[0].sale_price,
+            cost_price: this.newProductsFeature[0].cost_price,
+            wholesale_price: this.newProductsFeature[0].wholesale_price,
+            subtotal: this.newProductsFeature[0].sub_total,
+            code: this.newProductsFeature[0].code,
+            filling: this.newProductsFeature[0].filling,   
+            type_of_sale: 1, 
+          };
+
+          var obj = {};
+          obj["id"] = detailSale.id;
+          obj["name"] = detailSale.name;
+          obj["quanty"] = detailSale.quanty;
+          obj["stock"] = detailSale.stock;
+          obj["min_stock"] = detailSale.min_stock;
+          obj["max_stock"] = detailSale.max_stock; 
+          obj["price"] = detailSale.price;
+          obj["cost_price"] = detailSale.cost_price;
+          obj["wholesale_price"] = detailSale.wholesale_price;
+          obj["sub_total"] = detailSale.subtotal; 
+          obj["code"] = detailSale.code;
+          obj["filling"] = detailSale.filling;  
+          obj["type_of_sale"] = detailSale.type_of_sale;
+
+
+          this.barcode = ""
+
+          if (obj["stock"] < 1) {
+            this.errorProductStock()
+          } else if (obj["stock"] <= obj["min_stock"]) {
+            this.warningProductStock(obj["stock"]); 
+            this.gettingProductsBarcode.push(obj); 
+          } else { 
+            this.gettingProductsBarcode.push(obj); 
+          }
+          this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2) * (obj["quanty"])               
+          this.exchange = this.totalSaleDetail - this.totalSaleDetail; 
+        break;
+      
+        default:
+          break;
+      } 
+      if (this.newProductsFeature.length > 1) {
+        console.log("greather than");
+        this.dialogGreatherThanOneProduct = true
+      }
+
     } 
-  } 
 },
+
+    searchItem() {
+      let filtered = [];  
+      if (this.barcode) {
+        filtered = this.listofProducts.filter((el) => {
+          return Object.values(el).some((val) =>
+            String(val).toLowerCase().includes(this.barcode)
+          );
+        });
+
+        this.log = filtered;
+          switch (this.log.length) {
+          case 0:
+            this.$swal.fire({
+              title: 'Verificador de producto',
+              text: "¡Producto no encontrado!",
+              icon: 'warning',
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Aceptar' 
+            })
+          break;
+
+          case 1:   
+            this.productVerifyName = this.log[0].name; 
+            this.productVerifyFilling = this.log[0].filling;  
+            this.productVerifyStock = `Existencia: ${this.log[0].stock}`;
+            this.productVerifyPrice = this.log[0].cost_price;   
+          break;
+        
+          default:
+            break;
+        } 
+      } 
+    },
 
     parsedDate(date){
       return moment(String(date)).format('DD/MM/YYYY')
@@ -2788,6 +2679,7 @@ export default {
         })
         .catch((error) => {
           this.errored = true;
+          return error;
         })
         .finally(() => (this.loading = false));
     },
@@ -2802,10 +2694,13 @@ export default {
       axios
         .get(`${API}api/sales/branch-office-cat/${this.bid}/`, { headers })
         .then((response) => { 
-          
+        
           if (response.data.list_products.length > 0) { 
             this.barc = response.data.list_products;
+            console.log(this.barc, " filter");
             this.filterProducts = this.barc.find(element => element.barcode == (this.barcode) || element.name.toLowerCase() == this.barcode.toLowerCase() || element.code.toLowerCase() == this.barcode.toLowerCase()); 
+            console.log(this.filterProducts, " filter");
+            
             if (this.filterProducts) {
               const detailSale = {
                 id: this.filterProducts.id,
@@ -2819,10 +2714,8 @@ export default {
                 wholesale_price: this.filterProducts.wholesale_price,
                 subtotal: this.filterProducts.sub_total,
                 code: this.filterProducts.code,
-                filling: this.filterProducts.filling,  
-                unities: 1,
-                type_of_sale: 1,
-                showUnities: false
+                filling: this.filterProducts.filling,   
+                type_of_sale: 1, 
               };
 
               var obj = {};
@@ -2837,9 +2730,7 @@ export default {
               obj["wholesale_price"] = detailSale.wholesale_price;
               obj["sub_total"] = detailSale.subtotal; 
               obj["code"] = detailSale.code;
-              obj["filling"] = detailSale.filling;
-              obj["unities"] = detailSale.unities;
-              obj["showUnities"] = detailSale.showUnities;
+              obj["filling"] = detailSale.filling;  
               obj["type_of_sale"] = detailSale.type_of_sale;
 
 
@@ -2848,14 +2739,12 @@ export default {
               if (obj["stock"] < 1) {
                 this.errorProductStock()
               } else if (obj["stock"] <= obj["min_stock"]) {
-                this.warningProductStock(obj["stock"]);
-                obj["stock"] -= 1
+                this.warningProductStock(obj["stock"]); 
                 this.gettingProductsBarcode.push(obj); 
-              } else {
-                obj["stock"] -= 1
+              } else { 
                 this.gettingProductsBarcode.push(obj); 
               }
-              this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2) * (obj["quanty"]) * (obj["unities"])              
+              this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2) * (obj["quanty"])               
               this.exchange = this.totalSaleDetail - this.totalSaleDetail;
               this.searchForProduct = false;
 
@@ -2881,10 +2770,7 @@ export default {
         .finally(() => (this.loading = false));
     },
 
-    sumUnities(u, p){
-      return u * p;
-    },
-
+    
     sumTextField(){
       this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2) 
     },
@@ -2897,7 +2783,7 @@ export default {
 
     sumPrecios(items) {
       return items.reduce((a, b) => { 
-        return a + Number((b["price"]) * b["quanty"] * b["unities"]);
+        return a + Number((b["price"]) * b["quanty"]  );
       }, 0);
     },
 
@@ -2909,7 +2795,7 @@ export default {
 
     sumPreciosGain(items) {
       return items.reduce((a, b) => {
-        return a + Number((b["cost_price"]) * b["quanty"] * b["unities"]);
+        return a + Number((b["cost_price"]) * b["quanty"]  );
       }, 0);
     },
 
@@ -3006,20 +2892,18 @@ export default {
                       "sale": responsev.data.id,
                       "product": this.gettingProductsBarcode[index].id,
                       "quantity": this.gettingProductsBarcode[index].quanty,
-                      "sub_total": this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].price * this.gettingProductsBarcode[index].unities,
-                      "type_of_sale": typeof this.gettingProductsBarcode[index].type_of_sale == "number" ? 1 : this.gettingProductsBarcode[index].type_of_sale.id,
-
+                      "sub_total": this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].price,
+                      "type_of_sale": 1 ,  
                     },
                     { headers }
                   )
                   .then((r) => {  
                     console.log(r.data.type_of_sale, "sales data by");
-                    console.log(this.gettingProductsBarcode[index].stock, "Stock", this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].unities, "multiply");
-                    var restStock = this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].unities;
+                     var restStock = this.gettingProductsBarcode[index].quanty;
 
                     axios.patch( `${API}api/sales/product/${this.gettingProductsBarcode[index].id}/`,
                     {
-                      "stock": (this.gettingProductsBarcode[index].stock + 1) - restStock,
+                      "stock": this.gettingProductsBarcode[index].stock - restStock,
                     },
 
                     ).then((response)=>{  
@@ -3109,19 +2993,18 @@ export default {
                   "sale": responsev.data.id,
                   "product": this.gettingProductsBarcode[index].id,
                   "quantity": this.gettingProductsBarcode[index].quanty,
-                  "sub_total": this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].price * this.gettingProductsBarcode[index].unities,
-                  "type_of_sale": typeof this.gettingProductsBarcode[index].type_of_sale == "number" ? 1 : this.gettingProductsBarcode[index].type_of_sale.id,
+                  "sub_total": this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].price,
+                  "type_of_sale": 1 ,
 
                 },
                 { headers }
               )
               .then((r) => {  
                 console.log(r.data.type_of_sale, "sales data by");
-                var restStock = this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].unities;
-                console.log(this.gettingProductsBarcode[index].stock, "Stock", this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].unities, "multiply");
-                axios.patch( `${API}api/sales/product/${this.gettingProductsBarcode[index].id}/`,
+                var restStock = this.gettingProductsBarcode[index].quanty;
+                 axios.patch( `${API}api/sales/product/${this.gettingProductsBarcode[index].id}/`,
                 {
-                  "stock": (this.gettingProductsBarcode[index].stock + 1) - restStock,
+                  "stock": this.gettingProductsBarcode[index].stock - restStock,
                 },
 
                 ).then((response)=>{  
@@ -3322,14 +3205,6 @@ export default {
     selectTypeOfSale(t) {
       this.typeOfSaleId = t.id;
       this.typeOfSale = t.name;
-      t.showUnities = !t.showUnities 
-      if (t.id > 1) {
-        t.showUnities = true;
-      } else {
-        t.showUnities = false; 
-      }
-      console.log(t.showUnities);
-
     },
 
     postTypeOfSale(){
