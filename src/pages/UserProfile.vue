@@ -568,7 +568,7 @@
                   @change="selectCategory"
                   outlined> 
                 </v-select> 
-              <!--  <div>
+              <div>
                   <vue-excel-xlsx
                     :data="listOfProducts"
                     :columns="columns"
@@ -583,7 +583,7 @@
                     </v-btn> 
                   </vue-excel-xlsx>
                   
-                </div> -->
+                </div> 
                 
               </v-row>  
               </v-col>

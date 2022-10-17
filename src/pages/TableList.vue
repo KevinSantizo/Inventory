@@ -2237,6 +2237,7 @@ export default {
     setCusomerIdF(){
       this.setCustomerId = null;
     },
+    
     changeDate() {
       console.log(this.date2, "# date 2");
     },
