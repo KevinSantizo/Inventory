@@ -569,19 +569,19 @@
                   outlined> 
                 </v-select> 
               <div>
-                  <vue-excel-xlsx
-                    :data="listOfProducts"
-                    :columns="columns"
-                    file-name="productos"
-                    file-type="xlsx"
-                    sheet-name="sheetname"
-                    >
-                    <v-btn dark color="#0ead69">
-                      <v-icon dark>
-                        mdi-microsoft-excel
-                      </v-icon> 
-                    </v-btn> 
-                  </vue-excel-xlsx>
+                <vue-excel-xlsx
+                  :data="listOfProducts"
+                  :columns="columns"
+                  file-name="productos"
+                  file-type="xlsx"
+                  sheet-name="sheetname"
+                  >
+                  <v-btn dark color="#0ead69">
+                    <v-icon dark>
+                      mdi-microsoft-excel
+                    </v-icon> 
+                  </v-btn> 
+                </vue-excel-xlsx>
                   
                 </div> 
                 
