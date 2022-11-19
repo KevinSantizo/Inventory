@@ -334,21 +334,17 @@ export default {
     const labelsDay = [];
     const theDataDay = []; 
  
-    await axios.get(`${API}api/sales/sales-by-day/`).then((response) => {
-      this.salesByDay = response.data.slice(-7).reverse();  
+    await axios.get(`${API}api/sales/sales-by-day/?branch_office=${this.bid}`).then((response) => {
+      this.salesByDay = response.data.slice(-7);  
       this.salesByDay.map(entry => {
           this.parsedEntrySalesDay = entry.sales.filter((s)=> s.branch_office == this.bid);
           console.log(entry.day.toUpperCase() , " day ");
-          this.parsedEntrySalesDay.reverse()
-          console.log(this.parsedEntrySalesDay, " days");
-          switch (entry.day.toUpperCase().substring(0, 3)) { 
-            
+ 
+          switch (entry.day.toUpperCase().substring(0, 3)) {
             case "SUN":
               labelsDay.push("DOMINGO");  
             
             break; 
-
-
             case "MON":
               labelsDay.push("LUNES");  
               
@@ -368,30 +364,25 @@ export default {
               labelsDay.push("JUEVES");  
             
             break;
-
             case "FRI":
               labelsDay.push("VIERNES");  
             
             break;
-
             case "SAT":
               labelsDay.push("SABADO");  
             
             break;
-
-
           
             default:
               break;
           }  
- 
           theDataDay.push(this.parsedEntrySalesDay.length)
-          
         }); 
  
       }).catch((err) => {
         console.log('Err: ' + err);
       })
+
 
 
     const data = {

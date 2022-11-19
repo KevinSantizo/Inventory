@@ -244,6 +244,66 @@
           </v-card> 
         </v-card> 
       </v-dialog> 
+      <v-dialog width="700" v-model="dialogGreatherThanOneProduct">
+        <v-card>
+          <v-card-title class="text-h5 grey lighten-2">
+            Productos encontrados 
+          </v-card-title>
+          <v-divider></v-divider> 
+          <div>
+            <v-list>
+              <v-list-item-group
+                v-model="model"
+                mandatory
+                color="#2ec4b6"
+              >
+                <v-list-item
+                  v-for="(item, i) in this.newProductsFeature"
+                  :key="i" 
+                > 
+                  <v-list-item-content>
+                    <v-list-item-title>{{item.name}} {{item.filling}}</v-list-item-title>
+                    <v-list-item-subtitle>Existencia: {{item.stock}}</v-list-item-subtitle>
+                    <v-list-item-subtitle>Precio: Q{{item.sale_price}}</v-list-item-subtitle>
+                 
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn 
+                      color="#2ec4b6"
+                      dark
+                      min-width="200"
+                      outlined
+                      elevation="0"
+                      @click="addToSale(item.barcode)" 
+                    >
+                      <v-icon dark class="mr-3"> mdi-check </v-icon>
+                      Agregar a venta
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </div>
+          <v-card outlined color="grey lighten-4">
+            <v-card-actions > 
+              <v-row justify="space-between" class="ma-3"> 
+                <v-spacer></v-spacer>
+                <v-btn 
+                  color="#2ec4b6"
+                  dark
+                  min-width="200"
+                  elevation="0"
+                  @click="(dialogGreatherThanOneProduct = false)" 
+                >
+                  <v-icon dark class="mr-3"> mdi-check </v-icon>
+                  Aceptar
+                </v-btn>
+              </v-row>
+
+            </v-card-actions>
+          </v-card> 
+        </v-card>
+      </v-dialog>
       <v-dialog width="700" v-model="moneyIncomeDialog"> 
         <v-card >  
           <v-card-title class="text-h5 grey lighten-2">
@@ -526,7 +586,7 @@
                 v-model="barcode"
                 :autofocus="autofocus"
                 solo
-                v-on:keyup.enter="submit"
+                v-on:keyup.enter="searchArrayNewProductsFeature"
                 label="Buscar por código de barras"
               ></v-text-field>  
             </v-col> 
@@ -2254,7 +2314,11 @@ export default {
       listPriceDiscount: [],
       objDiscount: {},
       disableTypeOfSaleDetail: false,
-      typeOfSaleNum: 0
+      typeOfSaleNum: 0,
+      newProductsFeature: [],
+      dialogGreatherThanOneProduct: false,
+      dates: ['', ''],
+      dialogLoading: false
     };
   },
 
@@ -2307,6 +2371,12 @@ export default {
   },
 
   methods: {
+
+
+    addToSale(barcode){ 
+      this.barcode = barcode;
+      this.getProduct();
+    },
 
  
 
@@ -2661,6 +2731,82 @@ export default {
           break;
       } 
 
+    } 
+},
+
+searchArrayNewProductsFeature(e) {
+    e.preventDefault();
+    let filtered = [];
+    const input = e.target.value.toLowerCase();
+    if (input || this.barcode) {  
+      filtered = this.listofProducts.filter((el) => {
+        return Object.values(el).some((val) =>
+          String(val).toLowerCase().includes(input)
+        );
+      });
+    this.newProductsFeature = filtered;
+      console.log(this.newProductsFeature, " products ");
+      switch (this.newProductsFeature.length) {
+        case 0:
+          this.$swal.fire({
+            title: 'Detalle venta',
+            text: "¡Producto no encontrado!",
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar' 
+          })
+        break;
+        case 1: 
+        const detailSale = {
+            id: this.newProductsFeature[0].id,
+            name: this.newProductsFeature[0].name,
+            quanty: 1,
+            stock: this.newProductsFeature[0].stock,
+            min_stock: this.newProductsFeature[0].min_stock,
+            max_stock: this.newProductsFeature[0].max_stock, 
+            price: this.newProductsFeature[0].sale_price,
+            cost_price: this.newProductsFeature[0].cost_price,
+            wholesale_price: this.newProductsFeature[0].wholesale_price,
+            subtotal: this.newProductsFeature[0].sub_total,
+            code: this.newProductsFeature[0].code,
+            filling: this.newProductsFeature[0].filling,   
+            type_of_sale: 1, 
+          };
+          var obj = {};
+          obj["id"] = detailSale.id;
+          obj["name"] = detailSale.name;
+          obj["quanty"] = detailSale.quanty;
+          obj["stock"] = detailSale.stock;
+          obj["min_stock"] = detailSale.min_stock;
+          obj["max_stock"] = detailSale.max_stock; 
+          obj["price"] = detailSale.price;
+          obj["cost_price"] = detailSale.cost_price;
+          obj["wholesale_price"] = detailSale.wholesale_price;
+          obj["sub_total"] = detailSale.subtotal; 
+          obj["code"] = detailSale.code;
+          obj["filling"] = detailSale.filling;  
+          obj["type_of_sale"] = detailSale.type_of_sale;
+          this.barcode = ""
+          if (obj["stock"] < 1) {
+            this.errorProductStock()
+          } else if (obj["stock"] <= obj["min_stock"]) {
+            this.warningProductStock(obj["stock"]); 
+            this.gettingProductsBarcode.push(obj); 
+          } else { 
+            this.gettingProductsBarcode.push(obj); 
+          }
+          this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2) * (obj["quanty"])               
+          this.exchange = this.totalSaleDetail - this.totalSaleDetail; 
+        break;
+      
+        default:
+          break;
+      } 
+      if (this.newProductsFeature.length > 1) {
+        console.log("greather than");
+        this.dialogGreatherThanOneProduct = true
+      }
     } 
 },
 
