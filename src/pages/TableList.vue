@@ -177,7 +177,7 @@
         </v-card>
       </v-card>
     </v-dialog> 
-      <v-dialog width="700" v-model="showVerifier"> 
+    <v-dialog width="700" v-model="showVerifier"> 
         <v-card >  
           <v-card-title class="text-h5 grey lighten-2">
             Verificador de precios 
@@ -198,6 +198,7 @@
               </v-text-field> 
             </div>
             <v-divider></v-divider> 
+            <div v-if="this.log.length<2">
               <v-row justify="center" class="mt-4 mb-1">
                 <div class="display-1 center">
                   {{productVerifyName}} {{productVerifyFilling}} 
@@ -214,11 +215,47 @@
                 Q {{productVerifyPrice}}
               </div>
             </v-row>  
+          </div>
+          <div v-else>
+            <v-list>
+              <v-list-item-group
+                v-model="model"
+                mandatory
+                color="#2ec4b6"
+              >
+                <v-list-item
+                  v-for="(item, i) in this.log"
+                  :key="i" 
+                > 
+                  <v-list-item-content>
+                    <v-list-item-title>{{item.name}} {{item.filling}}</v-list-item-title>
+                    <v-list-item-subtitle>Existencia: {{item.stock}}</v-list-item-subtitle>
+                    <v-list-item-subtitle>Precio: Q{{item.sale_price}}</v-list-item-subtitle>
+                 
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn 
+                      color="#2ec4b6"
+                      dark
+                      outlined
+                      min-width="200"
+                      elevation="0"
+                      @click="addToSale(item.barcode)" 
+                    >
+                      <v-icon dark class="mr-3"> mdi-check </v-icon>
+                      Agregar a venta
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </div>
           </v-card-text> 
           <v-card outlined color="grey lighten-4">
             <v-card-actions > 
               <v-row justify="space-between" class="ma-3"> 
                 <v-btn 
+                  v-show="this.log.length<2"
                   color="#2ec4b6"
                   dark
                   min-width="200"
@@ -228,7 +265,10 @@
                   <v-icon dark class="mr-3"> mdi-chevron-left </v-icon>
                   Cancelar
                 </v-btn>
+                <v-spacer></v-spacer>
+                
                 <v-btn 
+                  v-if="this.log.length<2"
                   color="#2ec4b6"
                   dark
                   min-width="200"
@@ -237,6 +277,17 @@
                 >
                   <v-icon dark class="mr-3"> mdi-check </v-icon>
                   Agregar a venta
+                </v-btn>
+                <v-btn 
+                  v-else
+                  color="#2ec4b6"
+                  dark
+                  min-width="200"
+                  elevation="0"
+                  @click="(showVerifier = false)" 
+                >
+                  <v-icon dark class="mr-3"> mdi-check </v-icon>
+                  Aceptar
                 </v-btn>
               </v-row>
 

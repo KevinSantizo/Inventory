@@ -415,6 +415,8 @@ export default {
       },
     };
 
+    console.log(document.getElementById('myChart'), "# chartr")
+
     const myChart = new Chart(
       document.getElementById('myChart'),
       config
