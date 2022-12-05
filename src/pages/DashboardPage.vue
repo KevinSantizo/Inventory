@@ -336,6 +336,7 @@ export default {
  
     await axios.get(`${API}api/sales/sales-by-day/?branch_office=${this.bid}`).then((response) => {
       this.salesByDay = response.data.slice(-7);  
+      this.salesByDay.reverse();
       this.salesByDay.map(entry => {
           this.parsedEntrySalesDay = entry.sales.filter((s)=> s.branch_office == this.bid);
           console.log(entry.day.toUpperCase() , " day ");
