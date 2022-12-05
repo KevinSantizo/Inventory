@@ -2822,7 +2822,9 @@ searchArrayNewProductsFeature(e) {
             subtotal: this.newProductsFeature[0].sub_total,
             code: this.newProductsFeature[0].code,
             filling: this.newProductsFeature[0].filling,   
-            type_of_sale: 1, 
+            unities: 1,
+            type_of_sale: 1,
+            showUnities: false, 
           };
           var obj = {};
           obj["id"] = detailSale.id;
@@ -2837,6 +2839,8 @@ searchArrayNewProductsFeature(e) {
           obj["sub_total"] = detailSale.subtotal; 
           obj["code"] = detailSale.code;
           obj["filling"] = detailSale.filling;  
+          obj["unities"] = detailSale.unities;
+          obj["showUnities"] = detailSale.showUnities;
           obj["type_of_sale"] = detailSale.type_of_sale;
           this.barcode = ""
           if (obj["stock"] < 1) {
