@@ -2483,7 +2483,6 @@ searchArrayNewProductsFeature(e) {
           String(val).toLowerCase().includes(input)
         );
       });
-
     this.newProductsFeature = filtered;
       console.log(this.newProductsFeature, " products ");
       switch (this.newProductsFeature.length) {
@@ -2497,7 +2496,6 @@ searchArrayNewProductsFeature(e) {
             confirmButtonText: 'Aceptar' 
           })
         break;
-
         case 1: 
         const detailSale = {
             id: this.newProductsFeature[0].id,
@@ -2512,9 +2510,10 @@ searchArrayNewProductsFeature(e) {
             subtotal: this.newProductsFeature[0].sub_total,
             code: this.newProductsFeature[0].code,
             filling: this.newProductsFeature[0].filling,   
-            type_of_sale: 1, 
+            unities: 1,
+            type_of_sale: 1,
+            showUnities: false, 
           };
-
           var obj = {};
           obj["id"] = detailSale.id;
           obj["name"] = detailSale.name;
@@ -2528,11 +2527,10 @@ searchArrayNewProductsFeature(e) {
           obj["sub_total"] = detailSale.subtotal; 
           obj["code"] = detailSale.code;
           obj["filling"] = detailSale.filling;  
+          obj["unities"] = detailSale.unities;
+          obj["showUnities"] = detailSale.showUnities;
           obj["type_of_sale"] = detailSale.type_of_sale;
-
-
           this.barcode = ""
-
           if (obj["stock"] < 1) {
             this.errorProductStock()
           } else if (obj["stock"] <= obj["min_stock"]) {
@@ -2552,7 +2550,6 @@ searchArrayNewProductsFeature(e) {
         console.log("greather than");
         this.dialogGreatherThanOneProduct = true
       }
-
     } 
 },
 
