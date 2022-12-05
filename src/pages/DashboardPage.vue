@@ -286,7 +286,7 @@ export default {
       reminderform: {
         description: "",
         date: "",
-        branch_office: 1
+        branch_office: null
       },
       parsedEntrySales: [],
       parsedEntrySalesDay: []
@@ -336,15 +336,18 @@ export default {
  
     await axios.get(`${API}api/sales/sales-by-day/?branch_office=${this.bid}`).then((response) => {
       this.salesByDay = response.data.slice(-7);  
+      this.salesByDay.reverse();
       this.salesByDay.map(entry => {
           this.parsedEntrySalesDay = entry.sales.filter((s)=> s.branch_office == this.bid);
           console.log(entry.day.toUpperCase() , " day ");
  
           switch (entry.day.toUpperCase().substring(0, 3)) {
+
             case "SUN":
               labelsDay.push("DOMINGO");  
             
             break; 
+
             case "MON":
               labelsDay.push("LUNES");  
               
@@ -364,14 +367,17 @@ export default {
               labelsDay.push("JUEVES");  
             
             break;
+
             case "FRI":
               labelsDay.push("VIERNES");  
             
             break;
+
             case "SAT":
               labelsDay.push("SABADO");  
             
             break;
+
           
             default:
               break;
@@ -463,6 +469,7 @@ export default {
    created (){ 
     this.bid = localStorage.getItem('bo');
     console.log(localStorage.getItem('user'), " getting user id ");
+    this.reminderform.branch_office = this.bid
     this.getSalesByCurrentMonth(); 
     this.getSalesByCurrentDay(); 
     this.getProducts();
@@ -542,6 +549,7 @@ export default {
         setTimeout(() => this.notifyVue("top", "right"), 5000);
         this.reminderform.description = "";
         this.getReminders();
+        console.log("reminder", response.data)
         return response.data;
       }).catch((error) => {
         return error;
@@ -562,6 +570,8 @@ export default {
       axios.get(`${API}api/sales/branch-office-re/${this.bid}/`, { headers })
       .then((response) => { 
         this.reminders = response.data.list_reminders;
+        console.log("reminder", response.data)
+
         this.reminders.reverse();
         })
       .catch((error) => {
