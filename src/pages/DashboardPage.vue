@@ -465,6 +465,7 @@ export default {
   },
    created (){ 
     this.bid = localStorage.getItem('bo');
+    this.reminderform.branch_office = this.bid;
     console.log(localStorage.getItem('user'), " getting user id ");
     this.getSalesByCurrentMonth(); 
     this.getSalesByCurrentDay(); 
@@ -536,15 +537,28 @@ export default {
       })
     },
 
+    getReminders(){
+      let headers = { "Content-Type": "application/json;charset=utf-8" };
+      axios.get(`${API}api/sales/branch-office-re/${this.bid}/`, { headers })
+      .then((response) => { 
+        this.reminders = response.data.list_reminders;
+        this.reminders.reverse();
+        })
+      .catch((error) => {
+        return error;
+      }) 
+    },
+
     submitReminderForm(){
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.post(`${API}api/sales/reminder/create/`, this.reminderform, {
         headers,
       }).then((response)=> {
+        this.getReminders();
+
         setTimeout(() => ( (this.dialogReminder = false)), 4000 );
         setTimeout(() => this.notifyVue("top", "right"), 5000);
         this.reminderform.description = "";
-        this.getReminders();
         return response.data;
       }).catch((error) => {
         return error;
@@ -560,17 +574,7 @@ export default {
       });
     },
 
-    getReminders(){
-      let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-re/${this.bid}/`, { headers })
-      .then((response) => { 
-        this.reminders = response.data.list_reminders;
-        this.reminders.reverse();
-        })
-      .catch((error) => {
-        return error;
-      }) 
-    },
+
     deleteReminder(id){
       let headers = { "Content-Type": "application/json;charset=utf-8" };
         axios.delete(`${API}api/sales/reminder/delete/${id}/`, { headers }).then((r)=>{

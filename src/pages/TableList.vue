@@ -7,7 +7,7 @@
         <div>
           <span class="body-2 text--primary font-weight-medium">Apertura de caja </span><br/> 
           <span class="body-2 green--text font-weight-medium">
-            {{totalBoxO}} GTQ  
+            {{form1.totalBoxO}} GTQ  
           </span><br/>
           <span class="body-2 grey--text">
             Hora: {{formatAMPM(timeBoxo)}} 
@@ -63,10 +63,9 @@
           <table class="ndk centrado">
             <thead>
               <tr>
-                <th>Cant.</th> 
-                <th>Descripción</th>
-                <th>Precio</th> 
-                <th>Desc.</th> 
+                <th class="text-left">Cant.</th> 
+                <th class="text-left">Descripción</th>
+                <th>Precio</th>  
                 <th>Subtotal</th>
               </tr>
             </thead>
@@ -80,10 +79,7 @@
                 </td> 
                 <td class="text-right font-weight-medium border_bottom">
                   Q.{{item.product_sale_price }} 
-                </td>
-                <td class="text-right font-weight-medium border_bottom">
-                  Q.{{item.product_sale_price - item.sub_total }} 
-                </td>
+                </td> 
                 <td class="text-right font-weight-medium border_bottom">
                   Q.{{ item.sub_total }} 
                 </td>
@@ -91,9 +87,7 @@
               
               <tr class="border_bottom">
                 <td></td>
-                <td></td> 
-                <td></td> 
-
+                <td></td>  
                 <td class="font-weight-medium " style="font-weight: bold !important;" >  
                     TOTAL 
                 </td>
@@ -1252,7 +1246,7 @@
                 <table> 
                   <tr>
                     <td class="text-left grey--text font-weight-bold"> Fondo de caja </td>
-                    <td class="text-right grey--text font-weight-bold"> Q {{this.numberWithCommas(totalBoxO)}} </td>
+                    <td class="text-right grey--text font-weight-bold"> Q {{this.numberWithCommas(this.form1.totalBoxO)}} </td>
                    </tr>
                   <tr>
                     <td class="text-left grey--text font-weight-bold"> Ventas en efectivo ({{salesByTodayCash.length}})</td>
@@ -1776,46 +1770,53 @@
       width="500"
     > 
       <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
-          Apertura de caja
-        </v-card-title>
-        <div class="d-flex align-center"> 
-        <v-list-item> 
-          <v-list-item-content>
-            <v-list-item-title >
-              <v-row justify="center" class="mb-8  mt-3">
-                <div class="center-text headline mt-3 font-weight-medium blue--text"> 
-                  ¿Cuánto dinero hay en caja?
+        <v-form   ref="form1" lazy-validation> 
+          <v-card-title class="text-h5 grey lighten-2">
+            Apertura de caja
+          </v-card-title>
+          <div class="d-flex align-center"> 
+          <v-list-item> 
+            <v-list-item-content>
+              <v-list-item-title >
+                <v-row justify="center" class="mb-8  mt-3">
+                  <div class="center-text headline mt-3 font-weight-medium blue--text"> 
+                    ¿Cuánto dinero hay en caja?
+                  </div>
+                </v-row>
+              </v-list-item-title>  
+                <v-text-field 
+                  class="ml-10 mr-10 mb-2"
+                  v-model.number="form1.totalBoxO" 
+                  hide-details
+                  prefix="Q." 
+                  color="#26547c"
+                  required
+                  outlined
+                  label="Ingrese la cantidad"
+                  dense 
+                  clearable 
+                  :rules="obligatorioRules"
+                ></v-text-field> 
+                <div v-show="valid" class="ml-10 body font-weight-medium red--text"> 
+                  ¡Campo obligatorio!
                 </div>
-              </v-row>
-            </v-list-item-title>  
-              <v-text-field 
-                class="ml-10 mr-10 mb-2"
-                v-model.number="totalBoxO" 
-                hide-details
-                prefix="Q." 
-                color="#26547c"
-                required
-                outlined
-                label="Ingrese la cantidad"
-                dense 
-                clearable 
-              ></v-text-field> 
-            </v-list-item-content>
-          </v-list-item> 
-        </div> 
-        <v-divider></v-divider> 
-        <v-card-actions>
-          <v-spacer></v-spacer> 
-          <v-btn 
-            class="pa-2"
-            depressed 
-            @click="(dialogForm = true), createBoxOpen()"
-          >
-            <v-icon left dark size="25" color="#2ec4b6">mdi-cash</v-icon> 
-            Registrar 
-          </v-btn>
-        </v-card-actions>
+              </v-list-item-content>
+            </v-list-item> 
+          </div> 
+          <v-divider></v-divider> 
+          <v-card-actions>
+            <v-spacer></v-spacer> 
+            <v-btn 
+              class="pa-2"
+              depressed 
+              @click="validate()" 
+            >
+              <v-icon left dark size="25" color="#2ec4b6">mdi-cash</v-icon> 
+              Registrar 
+            </v-btn>
+          </v-card-actions>
+        </v-form> 
+
       </v-card>
     </v-dialog>
   </div>
@@ -1960,7 +1961,11 @@ export default {
       customerName: "", 
       boxOpened: [],
       dialogBoxO: false,
-      totalBoxO: "",
+      obligatorioRules: [(v) => !!v || "Campo obligatorio"],
+      form1: {
+        totalBoxO: "",
+      },
+      valid: false,
       timeBoxo: "",
       moneyOut: [],
       moneyIncome: [],
@@ -2106,7 +2111,16 @@ export default {
   },
 
   methods: {
- 
+
+    validate () {  
+      if (this.form1.totalBoxO == "") {
+        this.valid = true;
+      } else {
+        this.dialogForm = true;
+        this.dialogBoxO = false;
+        this.createBoxOpen();
+      } 
+    },
 
     addToSale(barcode){ 
       this.barcode = barcode;
@@ -2131,7 +2145,7 @@ export default {
 
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.get(`${API}api/sales/branch-office-boxc/${this.bid}/`, {headers}).then((r)=>{
-        if (r.data.boxes_closed.length > 0) {
+        if (r.data.boxes_closed.lemoneyOutngth > 0) {
           this.totalBoxClosed = r.data.boxes_closed[0].total;
           this.dateBoxClosed = r.data.boxes_closed[0].date;
           this.timeBoxClosed = r.data.boxes_closed[0].time;
@@ -2155,10 +2169,10 @@ export default {
 
     cashCut(){ 
  
-      this.getCutOfCashDetail = (this.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.credtisLiquidToday) + this.sumPrecios2(this.bonusToday) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
+      this.getCutOfCashDetail = (this.form1.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.credtisLiquidToday) + this.sumPrecios2(this.bonusToday) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
       this.$swal.fire({
         title: '¿Seguro que deseas realizar el corte de caja?',
-        text: "!No podrás revertir esta acción!",
+        text: "¡No podrás revertir esta acción!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -2360,7 +2374,7 @@ export default {
     createBoxOpen(){
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.post(`${API}api/sales/box-open/create/`, {
-        "total": this.totalBoxO,
+        "total": this.form1.totalBoxO,
         "branch_office": this.bid
       }, {headers}).then((r)=>{ 
         setTimeout(() => this.notifyVue2("top", "right"), 5000);
@@ -2382,13 +2396,13 @@ export default {
         this.boxOpened = r.data.boxes_opened; 
         console.log(r.data.boxes_opened, " boxo pened");
         if (this.boxOpened.length != 0) {
-          this.totalBoxO = parseFloat(this.boxOpened[0].total) 
+          this.form1.totalBoxO = parseFloat(this.boxOpened[0].total) 
           this.timeBoxo = this.boxOpened[0].time;
-          console.log(this.totalBoxO, " bocono"); 
+          console.log(this.form1.totalBoxO, " bocono"); 
         }
  
         this.getBoxO();
-        return this.totalBoxO;
+        return this.form1.totalBoxO;
       })
     },
 
@@ -2410,11 +2424,16 @@ export default {
   createMoneyOut(){
     let headers = { "Content-Type": "application/json;charset=utf-8" };
     axios.post(`${API}api/sales/money-out/create/`, this.moneyOutForm, { headers }).then((r)=>{
+      this.getMoneyOut();
+
       setTimeout(() => this.notifyVue2("top", "right"), 5000);
       this.moneyOutForm.total  = "";
       this.getMoneyOut();
+
       this.getShoppings();
       return r.data;
+    }).catch((e)=>{
+      return e;
     })
 
   },
@@ -3280,7 +3299,7 @@ searchArrayNewProductsFeature(e) {
       axios.get(`${API}api/sales/branch-office-sh-today/${this.bid}/`, { headers,}).then((response) => {
         this.shoppings = response.data.shoppings; 
         console.log(this.sumPrecios2(this.salesByTodayCash),  this.salesByTodayCash, "today casj");
-        this.getCutOfCashDetail = (this.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.credtisLiquidToday) + this.sumPrecios2(this.bonusToday) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
+        this.getCutOfCashDetail = (this.form1.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.credtisLiquidToday) + this.sumPrecios2(this.bonusToday) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
 
         this.shoppings.reverse();
         return response.data
