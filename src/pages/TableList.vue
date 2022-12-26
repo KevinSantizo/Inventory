@@ -41,6 +41,18 @@
       </div> 
     </v-row> 
   </v-footer> 
+  <v-dialog v-model="dialogLoading" hide-overlay persistent width="300">
+    <v-card color="#3fa7d6" dark>
+      <v-card-text>
+        Cargando, por favor espera...
+        <v-progress-linear
+          indeterminate
+          color="white"
+          class="mb-0"
+        ></v-progress-linear>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
   <v-dialog v-model="dialogCash" width="350">
   <v-card class=" ">
     <v-card-title class="subtitle-1 grey lighten-2">
@@ -980,14 +992,15 @@
                    
                   <v-date-picker 
                     ref="picker"
-                    v-model="date"  
+                    v-model="dates"  
                     locale="es-ES"  
                     scrollable 
-                    header-color="#1D3557" 
+                    range
+                    header-color="#1D3557"  
                     color="#1D3557">
                     <v-spacer></v-spacer>
                     <v-btn text color="#1D3557" @click="modal = false">Cancelar</v-btn>
-                    <v-btn text color="#1D3557" @click="$refs.dialog.save(date), getSaleByDate()">aceptar</v-btn>
+                    <v-btn text color="#1D3557" @click="$refs.dialog.save(dates), getSaleByDate()">aceptar</v-btn>
                   </v-date-picker>
                 </v-dialog>
               </v-col>
@@ -1078,11 +1091,7 @@
                               Precio
                             </div>
                           </th> 
-                          <th>
-                            <div class="text-center">
-                              Descuento
-                            </div>
-                          </th> 
+                           
                           <th>
                             <div class="text-center">
                               Subtotal
@@ -1103,10 +1112,7 @@
                           </td> 
                           <td class="text-center font-weight-medium   ">
                             Q.{{item.product_sale_price }} 
-                          </td>
-                          <td class="text-center font-weight-medium   ">
-                            Q.{{ item.type_of_sale != "Unidad" ? ' --- ' : (item.quantity * item.product_sale_price) - item.sub_total}} 
-                          </td>
+                          </td> 
                           <td class="text-center font-weight-medium   ">
                             Q.{{ item.sub_total }} 
                           </td>
@@ -1164,12 +1170,7 @@
                               <div class="text-center">
                                 Precio
                               </div>
-                            </th> 
-                            <th>
-                              <div class="text-center">
-                                Descuento
-                              </div>
-                            </th> 
+                            </th>  
                             <th>
                               <div class="text-center">
                                 Subtotal
@@ -1191,10 +1192,7 @@
 
                             <td class="text-center font-weight-medium   ">
                               Q.{{item.product_sale_price }} 
-                            </td>
-                            <td class="text-center font-weight-medium   ">
-                              Q.{{ item.type_of_sale != "Unidad" ? ' --- ' : (item.quantity * item.product_sale_price) - item.sub_total}} 
-                            </td>
+                            </td> 
                             <td class="text-center font-weight-medium   ">
                               Q.{{ item.sub_total }} 
                             </td>
@@ -2068,10 +2066,11 @@
             class="pa-2"
             depressed 
             @click="clearInput(), (dialogForm = true), createSale(false)"
-          >
-            <v-icon left  color="red">mdi-printer-off</v-icon> 
-            Cobrar sin imprimir
+          > 
+            Cobrar 
           </v-btn>
+
+          <!-- 
           <v-btn 
             class="pa-2"
             depressed 
@@ -2079,7 +2078,7 @@
           >
             <v-icon left   color="#2ec4b6">mdi-printer</v-icon> 
             Cobrar e imprimir
-          </v-btn>
+          </v-btn>-->
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -2126,7 +2125,7 @@
           <v-btn 
             class="pa-2"
             depressed 
-            @click="(dialogForm = true), createBoxOpen()"
+            @click="validate()"
           >
             <v-icon left dark size="25" color="#2ec4b6">mdi-cash</v-icon> 
             Registrar 
@@ -2597,27 +2596,27 @@ export default {
     },
 
     getSaleByDate(){
+      this.dialogLoading = true;
       let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-sales-date/?date=${this.date}`, {headers}).then((r)=>{
+      axios.get(`${API}api/sales/branch-office-sales-date/?date_after=${this.dates[0]}&date_before=${this.dates[1]}`, {headers}).then((r)=>{
+       console.log(r.data, " data ")
         if (r.data.length > 0) {
-          
+          this.dialogLoading = false;
           this.salesByDatePicker = r.data.filter((s)=> s.branch_office.id == this.bid);
-
           this.salesByDatePicker.reverse(); 
           this.salesForCutDay = this.salesByDatePicker.filter((s) => s.payment_type == 1);
           this.totalSalesToday = this.salesByDatePicker;
-        } else {
-          console.log("si entra");
+        } else { 
+          this.dialogLoading = false;
+          this.salesByDatePicker = []
         }
-
        })
     },
 
     getSaleByToday(){
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.get(`${API}api/sales/branch-office-sales-today-cash/${this.bid}/`, {headers}).then((r)=>{
-        if (r.data.sales_today_cash.length > 0) {
-          
+        if (r.data.sales_today_cash.length > 0) { 
           this.salesByTodayCash = r.data.sales_today_cash;
           console.log(this.salesByTodayCash, " today cashing");
           this.salesByTodayCash.reverse();  

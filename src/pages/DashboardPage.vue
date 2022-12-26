@@ -289,8 +289,8 @@ export default {
         branch_office: null
       },
       parsedEntrySales: [],
-      parsedEntrySalesDay: []
-
+      parsedEntrySalesDay: [],
+      valid: false,
     };
   },
 
@@ -479,6 +479,17 @@ export default {
   },
 
   methods: {
+
+
+    validate () {  
+      if (this.totalBoxO == "") {
+        this.valid = true;
+      } else {
+        this.dialogForm = true;
+        this.dialogBoxO = false;
+        this.createBoxOpen();
+      } 
+    },
   
     getProducts() {
       let headers = { "Content-Type": "application/json;charset=utf-8" };
