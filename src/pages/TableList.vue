@@ -2130,7 +2130,15 @@
             <v-icon left dark size="25" color="#2ec4b6">mdi-cash</v-icon> 
             Registrar 
           </v-btn>
+          
         </v-card-actions>
+          <div class="mt-5" v-show="valid">
+            <v-alert 
+              type="error" 
+            >
+            ¡Campo obligatorio!
+            </v-alert>
+          </div>
       </v-card>
     </v-dialog>
   </div>
@@ -2368,7 +2376,8 @@ export default {
       newProductsFeature: [],
       dialogGreatherThanOneProduct: false,
       dates: ['', ''],
-      dialogLoading: false
+      dialogLoading: false,
+      valid: false,
     };
   },
 
@@ -2422,6 +2431,15 @@ export default {
 
   methods: {
 
+    validate () {  
+      if (this.totalBoxO == "") {
+        this.valid = true;
+      } else {
+        this.dialogForm = true;
+        this.dialogBoxO = false;
+        this.createBoxOpen();
+      } 
+    },
 
     addToSale(barcode){ 
       this.barcode = barcode;
