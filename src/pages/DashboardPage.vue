@@ -322,7 +322,7 @@ export default {
         withoutDuplicates.map(entry => { 
           this.parsedEntrySales = entry.sales.filter((s)=> s.branch_office == this.bid);
            labels.push(entry.month.toUpperCase().substring(0, 3));  
-          theData.push(this.parsedEntrySales.length)
+          theData.push(this.parsedEntrySales.length) 
         }); 
  
       }).catch((err) => {

@@ -334,8 +334,7 @@
                           color="#26547c"
                           outlined
                           hide-details
-                          dense
-                          :rules="obligatorioRules" 
+                          dense 
                           v-model="productForm.stock"
                         ></v-text-field>
                       </td>   
@@ -369,8 +368,7 @@
                           color="#26547c"
                           outlined
                           dense
-                          hide-details
-                          :rules="obligatorioRules" 
+                          hide-details  
                           v-model="productForm.min_stock"
                       ></v-text-field>
                       </td>
@@ -387,8 +385,7 @@
                         hide-details=""
                         dense
                         color="#26547c"
-                        type="number"
-                        :rules="obligatorioRules" 
+                        type="number" 
                         prefix="Q."
                         v-model="productForm.cost_price"
                       ></v-text-field>
@@ -404,8 +401,7 @@
                         color="#26547c"
                         outlined
                         dense
-                        hide-details
-                        :rules="obligatorioRules" 
+                        hide-details 
                         v-model="productForm.max_stock"
                       ></v-text-field>
                     </td>
@@ -457,8 +453,7 @@
                         hide-details
                         outlined
                         color="#26547c"
-                        dense
-                        :rules="obligatorioRules" 
+                        dense 
                         type="number"
                         prefix="Q."
                         v-model="productForm.wholesale_price"
@@ -515,7 +510,64 @@
                           </v-btn>
                         </div>
                       </v-row>
-                    </td> 
+                    </td>
+                    <td>
+                      <div class="mr-2 font-weight-bold ">
+                        Fecha de vencimiento
+                      </div>  
+                    </td>
+                    <td>
+                      <v-dialog
+                          ref="dialog0"
+                          v-model="modal0"
+                          :return-value.sync="
+                            productForm.sell_by_date
+                          "
+                          persistent
+                          width="290px"
+                        >
+                          <template
+                            v-slot:activator="{ on, attrs }"
+                          >
+                            <v-text-field
+                              v-model.trim="productForm.sell_by_date"
+                              color="color: #67B0AC"
+                              dense
+                              outlined
+                              hide-details
+                              v-bind="attrs"
+                              v-on="on" 
+                              required
+                            ></v-text-field>
+                          </template>
+                          <v-date-picker
+                            v-model.trim="productForm.sell_by_date"
+                            scrollable
+                            locale="es-ES"
+                            color="#67B0AC"
+                          >
+                            <v-spacer></v-spacer>
+                            <v-btn
+                              text
+                              color="color: #67B0AC"
+                              @click="modal0 = false"
+                            >
+                              Cancelar
+                            </v-btn>
+                            <v-btn
+                              text
+                              color="color: #67B0AC"
+                              @click="
+                                $refs.dialog0.save(
+                                  productForm.sell_by_date
+                                )
+                              "
+                            >
+                              Aceptar
+                            </v-btn>
+                          </v-date-picker>
+                        </v-dialog>
+                    </td>  
                   </tr>  
                 </table> 
               </v-form>  
@@ -607,6 +659,8 @@
                     </v-chip>
                   </td>
                   <td class="text-center caption font-weight-medium">{{ row.item.stock }}</td>
+                  <td class="text-center caption font-weight-medium">{{ row.item.sell_by_date }}</td>
+
                   <td class="text-center">
                     <v-btn
                       class="mx-2"
@@ -731,8 +785,7 @@
                           color="#26547c"
                           outlined
                           hide-details
-                          dense
-                          :rules="obligatorioRules" 
+                          dense  
                           v-model="productForm.stock"
                         ></v-text-field>
                       </td>   
@@ -766,8 +819,7 @@
                           color="#26547c"
                           outlined
                           dense
-                          hide-details
-                          :rules="obligatorioRules" 
+                          hide-details 
                           v-model="productForm.min_stock"
                       ></v-text-field>
                       </td>
@@ -801,8 +853,7 @@
                         color="#26547c"
                         outlined
                         dense
-                        hide-details
-                        :rules="obligatorioRules" 
+                        hide-details 
                         v-model="productForm.max_stock"
                       ></v-text-field>
                     </td>
@@ -1075,8 +1126,7 @@
                               readonly
                               outlined
                               hide-details
-                              dense
-                              :rules="obligatorioRules" 
+                              dense 
                               v-model="productForm.stock"
                             ></v-text-field>
                           </td>   
@@ -1112,8 +1162,7 @@
                               readonly
                               outlined
                               dense
-                              hide-details
-                              :rules="obligatorioRules" 
+                              hide-details 
                               v-model="productForm.min_stock"
                           ></v-text-field>
                           </td>
@@ -1149,8 +1198,7 @@
                             readonly
                             outlined
                             dense
-                            hide-details
-                            :rules="obligatorioRules" 
+                            hide-details 
                             v-model="productForm.max_stock"
                           ></v-text-field>
                         </td>
@@ -1702,6 +1750,12 @@ export default {
           sortable: false,
           value: 'date' 
         }, 
+        { 
+          text: 'Fecha vencimiento',
+          align: 'center',
+          sortable: false,
+          value: 'date' 
+        },
          { 
           text: 'Acciones',
           align: 'center',
@@ -1727,6 +1781,7 @@ export default {
       selectedProductForSetting: [],
       selectedProductObj: {},
       model: null,
+      modal0:false
     };
   },
 
@@ -1761,6 +1816,11 @@ computed: {
   },
 
   methods: { 
+
+    fixDateAndHour(d) {
+      let result = new Date(d).toLocaleString();
+      return result.substring(0,10).replace(",", " ");
+    },
 
     checkSecodnProduct(){
       if (this.idNewSetProduct == null) {

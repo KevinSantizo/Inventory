@@ -1950,10 +1950,10 @@
               Efectivo
               <v-icon>mdi-cash-multiple</v-icon>
             </v-tab> 
-            <v-tab   @click="clickCredit()">
+           <!--  <v-tab   @click="clickCredit()">
               Crédito
               <v-icon>mdi-account-credit-card</v-icon>
-            </v-tab> 
+            </v-tab> -->
           </v-tabs>
 
           <v-tabs-items v-model="tab2">
@@ -2008,7 +2008,8 @@
                 </v-row>
               </v-card>
             </v-tab-item>
-            <v-tab-item  > 
+
+          <!--   <v-tab-item  > 
               <v-card-title v-if="setCustomerId == null">
                 <v-text-field hide-details prepend-inner-icon="mdi-account" color="grey" class=" "  autofocus outlined clearable v-model="searchCustomer" dense label="Buscar cliente"> 
                 </v-text-field> 
@@ -2055,6 +2056,7 @@
               </div>
 
             </v-tab-item>
+-->
           </v-tabs-items>
         </v-card>
 
@@ -2063,11 +2065,11 @@
         <v-card-actions>
           <v-spacer></v-spacer>
            <v-btn 
-            class="pa-2"
+            class="pa-4 pl-3"
             depressed 
             @click="clearInput(), (dialogForm = true), createSale(false)"
           > 
-            Cobrar 
+          <v-icon left color="#2ec4b6">mdi-cash-multiple</v-icon>  Cobrar 
           </v-btn>
 
           <!-- 
