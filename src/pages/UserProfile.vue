@@ -283,7 +283,7 @@
           <v-tab><v-icon class="mr-3" >mdi-clipboard-text-multiple-outline</v-icon>Productos</v-tab> 
           <v-tab><v-icon class="mr-3" >mdi-text-box-edit-outline</v-icon>Modificar</v-tab> 
           <v-tab><v-icon class="mr-3" >mdi-file-document-remove</v-icon>Eliminar</v-tab>
-          <v-tab><v-icon class="mr-3" >mdi-cogs</v-icon>Ajuste</v-tab> 
+          <!-- <v-tab><v-icon class="mr-3" >mdi-cogs</v-icon>Ajuste</v-tab> -->
         </v-tabs>
       </v-card>
       <v-tabs-items v-model="tab" class="mt-3">
@@ -597,7 +597,7 @@
             >
             <template v-slot:no-data>
               <v-alert :value="true" color="error" dark class="text-center mt-3 mr-15 ml-15">
-                Producto(s) no encontrado :(
+                Producto(s) no encontrado
               </v-alert>
             </template>
               <template v-slot:item="row"> 
@@ -1643,12 +1643,10 @@ export default {
         cost_price: null,
         sale_price: null,
         wholesale_price: null,
-        type_of_sale: "Unidad",
-        sell_by_date: "", 
+        type_of_sale: "Unidad", 
         code: "",
         filling: "",
-        product_category: null, 
-        branch_office: this.bid
+        product_category: null,  
       },
 
       categoryProductForm: {
@@ -2306,6 +2304,7 @@ searchArrayForSetting2(e) {
           return response.data;
         })
         .catch((error) => {
+          console.log('loggin error', error);
           return error
         });
       } if (this.productForm.product_category == null) {

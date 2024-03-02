@@ -55,7 +55,7 @@
           </template>
         </stats-card>
       </div>
-      <div
+     <!-- <div
         class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-25"
       >
         <stats-card data-background-color="orange">
@@ -68,24 +68,23 @@
             <h3 class="title">{{suppliers}}</h3>
           </template>
         </stats-card>
-      </div>
+      </div> -->
 
 
-     <!-- <div
+     <div
         class="md-layout-item md-medium-size-50 md-xsmall-size-100 md-size-25"
       >
         <stats-card data-background-color="red">
           <template slot="header">
-            <v-icon color="white" size="25">mdi-human-male-male</v-icon>
+            <v-icon color="white" size="25">mdi-cart</v-icon>
           </template>
 
           <template slot="content">
-            <p class="category">Empleados</p>
-            <h3 class="title">{{suppliers.length}}</h3>
+            <p class="category">Total Ventas</p>
+            <h3 class="title">{{totalSales.length}}</h3>
           </template>
         </stats-card>
       </div>
---> 
       <div
         class="md-layout-item md-medium-size-100 md-xsmall-size-100 md-size-50 mt-10"
       >
@@ -289,7 +288,8 @@ export default {
         branch_office: 1
       },
       parsedEntrySales: [],
-      parsedEntrySalesDay: []
+      parsedEntrySalesDay: [],
+      totalSales: []
 
     };
   },
@@ -591,6 +591,7 @@ export default {
       axios
         .get(`${API}api/sales/branch-office-sa/${this.bid}`, { headers })
         .then((response) => { 
+          this.totalSales = response.data.list_sales
           this.latestSales = response.data.list_sales.slice(-5); 
           this.latestSales.reverse();
         }).catch((error) => {

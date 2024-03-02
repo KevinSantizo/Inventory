@@ -61,7 +61,7 @@ import router from "@/routes/index";
           localStorage.setItem('user', res.data[index]['id']); 
           localStorage.setItem('bo', res.data[index]['branch_office']);  
            console.log(res.data[index]['branch_office']);
-            router.push({name: 'Dashboard'}).catch(e => {
+            router.push({name: 'Ventas'}).catch(e => {
                 console.log(e); 
             });
           } else {

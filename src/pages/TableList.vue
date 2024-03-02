@@ -41,87 +41,7 @@
       </div> 
     </v-row> 
   </v-footer> 
-  <v-dialog v-model="dialogCash" width="350">
-  <v-card class=" ">
-    <v-card-title class="subtitle-1 grey lighten-2">
-      Vista previa
-    </v-card-title>
-    <v-divider></v-divider>
-    <!-- -->
-    <div ref="document"> 
-      <div class="ticket" id="element-to-convert"> 
-        <div class="centrado mt-3">
-          <img src="@/assets/img/paintc.png" style="height: 100px;" class="mb-3 centrado">
-
-        </div>
-        <v-divider></v-divider>
-        <p class="centrado mt-5">TICKET DE VENTA<br>Fecha: {{parsedDate(dateSale)}}<br>
-            Hora: {{formatAMPM(timeSale) }}</p> 
-          <div class="font-weight-medium centrado mb-3">Cliente: {{customerDetail}}</div>
-
-          <v-divider></v-divider>
-          <table class="ndk centrado">
-            <thead>
-              <tr>
-                <th class="text-left">Cant.</th> 
-                <th class="text-left">Descripción</th>
-                <th>Precio</th>  
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in detailSalesBySale" :key="index" >
-                <td class="text-center font-weight-medium border_bottom">
-                  {{ item.quantity }}
-                </td>
-                <td class="text-left font-weight-medium border_bottom">
-                  {{ item.product_name }} - {{ item.filling }}
-                </td> 
-                <td class="text-right font-weight-medium border_bottom">
-                  Q.{{item.product_sale_price }} 
-                </td> 
-                <td class="text-right font-weight-medium border_bottom">
-                  Q.{{ item.sub_total }} 
-                </td>
-              </tr>  
-              
-              <tr class="border_bottom">
-                <td></td>
-                <td></td>  
-                <td class="font-weight-medium " style="font-weight: bold !important;" >  
-                    TOTAL 
-                </td>
-                <td class="font-weight-medium " style="font-weight: bold !important;"> 
-                    Q.{{totalSale}}
-                </td>
-              </tr>
-            </tbody>
-          </table>  
-           
-          <div v-if="hasCredit">
-
-          <p class="centrado mt-5 font-weight-medium mb-5">*Venta a crédito*<br>
-            Firma cliente</p> 
-          <v-divider class="mr-5 ml-5 mt-5 font-weight-medium" style="margin-top: 50px !important;"> </v-divider>
-          <div class="subtitle-1 centrado font-weight-medium">
-            {{customerDetail}}
-          </div>
-          </div>
-          <div class="font-weight-medium mt-3 subtitle-1 centrado mb-5">¡Gracias por su compra!</div>
-          </div>
-      </div>  
-      <v-card-actions>
-        <v-spacer></v-spacer>
-         <v-btn
-            depressed 
-            elevation="0" @click="exportToPDF" >
-            <v-icon left  color="#2ec4b6">mdi-printer</v-icon>
-          Imprimir
-        </v-btn>
-    </v-card-actions>
-    </v-card>
-    
-  </v-dialog>
+   
   <v-dialog v-model="searchForProduct" hide-overlay persistent width="300">
       <v-card color="#3fa7d6" dark>
         <v-card-text>
@@ -682,7 +602,7 @@
                     cols="12"
                     sm="6" 
                   >
-                  <v-autocomplete
+                 <!--  <v-autocomplete
                     :disabled="selectDisabled"
                     ref="input"
                     class=""
@@ -700,7 +620,7 @@
                     dense
                     value="id" 
                     v-model="customerName"
-                  ></v-autocomplete>
+                  ></v-autocomplete> -->
                   </v-col>
                   <v-col cols="6">
                     <v-text-field
@@ -715,7 +635,7 @@
                     ></v-text-field>
                   </v-col>
                 </v-row>  
-                <v-row>
+               <!--  <v-row>
                   <v-col md="2">
                     <v-card  class="pb-4 pl-4 pr-4 "  outlined style="border-color: #2ec4b6;"> 
                       <v-checkbox
@@ -728,7 +648,7 @@
                       ></v-checkbox>  
                     </v-card>
                   </v-col> 
-                </v-row>
+                </v-row>-->
                 
                   <div v-show="selectDisabled">
                     <v-row class="">
@@ -975,91 +895,13 @@
               cols="12"
               sm="6"
               >
-            <v-card class=" " flat   v-if="showFirstSale">  
-              <!-- -->
-              <div ref="document" v-if="this.salesByDatePicker.length > 0"> 
-                <div class=" " id="element-to-convert"> 
-                  <div v-if="this.salesByDatePicker[0].customer.first_name" class="font-weight-medium mt-3">Cliente: {{this.salesByDatePicker[0].customer.first_name || " '' "}} {{this.salesByDatePicker[0].customer.last_name || " '' "}}</div>
+ 
 
-                    <p class=" ">  {{parsedDate(this.salesByDatePicker[0].date)}} {{formatAMPM(this.salesByDatePicker[0].time) }}</p> 
-
-                    <v-divider></v-divider>
-                    <table class="ndk centrado">
-                      <thead>
-                        <tr>
-                          <th>
-                            <div class="text-center">
-                              Cant.
-                            </div>
-                          </th> 
-                          <th>
-                            <div class="text-center">
-                              Descripción
-                            </div>
-                          </th> 
-                          <th>
-                            <div class="text-center">
-                              Tipo de venta
-                            </div>
-                          </th> 
-                          <th>
-                            <div class="text-center">
-                              Precio
-                            </div>
-                          </th>  
-                          <th>
-                            <div class="text-center">
-                              Subtotal
-                            </div> 
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(item, index) in this.salesByDatePicker[0].sales" :key="index" >
-                          <td class="text-center font-weight-medium   ">
-                            {{ item.quantity }}
-                          </td>
-                          <td class="text-center font-weight-medium   ">
-                            {{ item.product_name }} - {{ item.filling }}
-                          </td> 
-                          <td class="text-center font-weight-medium   ">
-                            {{ item.type_of_sale }}  
-                          </td> 
-                          <td class="text-center font-weight-medium   ">
-                            Q.{{item.product_sale_price }} 
-                          </td>  
-                          <td class="text-center font-weight-medium   ">
-                            Q.{{ item.sub_total }} 
-                          </td>
-                        </tr>  
-                      </tbody>
-                    </table>  
-                    <v-row justify="center" class="mt-3 " >
-                        <div class="text-center title font-weight-medium mr-2">
-                            Total:  
-                        </div>
-                        <div class="text-center grey--text title font-weight-medium ">
-                            Q{{this.salesByDatePicker[0].total}}
-                        </div>
-                        </v-row>  
-                      <v-row justify="center" class="mt-3 mb-4">
-                        <div class="text-center title font-weight-medium mr-1">
-                          Pagó con:  
-                        </div>
-                        <div class="text-center grey--text title font-weight-medium ">
-                          {{fixPaymentType( this.salesByDatePicker[0].payment_type)}}
-                        </div>
-                      </v-row> 
-                  </div>
-                </div>   
-              </v-card>
-
-              <v-card v-else flat  >  
+              <v-card flat  >  
                 <!-- -->
                 <div ref="document"> 
                   <div class=" " id="element-to-convert"> 
-                    <div class="font-weight-medium mt-3">Cliente: {{this.anotherSalesDetial.customer.first_name}} {{this.anotherSalesDetial.customer.last_name}}</div>
-
+ 
                       <p class=" "> {{parsedDate(this.anotherSalesDetial.date)}}  {{formatAMPM(this.anotherSalesDetial.time) }}</p> 
 
                       <v-divider></v-divider>
@@ -1075,12 +917,7 @@
                               <div class="text-center">
                                 Descripción
                               </div>
-                            </th> 
-                            <th>
-                              <div class="text-center">
-                                Tipo de venta
-                              </div>
-                            </th> 
+                            </th>  
                             <th>
                               <div class="text-center">
                                 Precio
@@ -1100,10 +937,7 @@
                             </td>
                             <td class="text-center font-weight-medium   ">
                               {{ item.product_name }} - {{ item.filling }}
-                            </td> 
-                            <td class="text-center font-weight-medium   ">
-                              {{ item.type_of_sale }}  
-                            </td> 
+                            </td>  
 
                             <td class="text-center font-weight-medium   ">
                               Q.{{item.product_sale_price }} 
@@ -1122,15 +956,7 @@
                         <div class="text-center grey--text title font-weight-medium ">
                             Q{{this.anotherSalesDetial.total}}
                         </div>
-                        </v-row> 
-                        <v-row justify="center" class="mt-3 mb-4" >
-                          <div class="text-center title font-weight-medium mr-2">
-                            Pagó con:  
-                          </div>
-                          <div class="text-center grey--text title font-weight-medium ">
-                           {{fixPaymentType( this.anotherSalesDetial.payment_type)}}
-                          </div>
-                        </v-row> 
+                        </v-row>  
                     </div>
                   </div>   
               </v-card>
@@ -1252,14 +1078,7 @@
                     <td class="text-left grey--text font-weight-bold"> Ventas en efectivo ({{salesByTodayCash.length}})</td>
                     <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(salesByTodayCash).toFixed(2)) }}</td>
                   </tr>
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold"> Créditos liquidados </td>
-                    <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(credtisLiquidToday).toFixed(2)) }}</td>
-                  </tr>
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold"> Abonos en efectivo </td>
-                    <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(bonusToday).toFixed(2)) }}  </td>
-                   </tr>
+                   
                   <tr>
                     <td class="text-left grey--text font-weight-bold"> Entradas </td>
                     <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(moneyIncome).toFixed(2)) }} </td>
@@ -1290,30 +1109,14 @@
                   <v-icon color="blue">
                     mdi-cash
                   </v-icon>
-                  Ventas / Créditos / Abonos
+                  Ventas 
                 </div>
               </v-card-text>
                 <table>  
                   <tr>
                     <td class="text-left grey--text font-weight-bold"> Ventas en efectivo </td>
                     <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(salesByTodayCash).toFixed(2)) }}</td>
-                  </tr>
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold">Total Créditos </td>
-                    <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(creditsToday).toFixed(2)) }}</td>
-                  </tr>
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold">Créditos liquidados (hoy) </td>
-                    <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(credtisLiquidToday).toFixed(2)) }}</td>
-                  </tr> 
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold">Créditos no liquidados (hoy) </td>
-                    <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(creditsNoLi).toFixed(2)) }}</td>
-                  </tr> 
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold"> Total abonos a créditos (hoy)  </td>
-                    <td class="text-right green--text font-weight-bold">+ Q {{numberWithCommas(sumPrecios2(bonusToday).toFixed(2)) }}  </td>
-                  </tr>  
+                  </tr>   
                 </table> 
               </v-card>
             </v-col>
@@ -1629,11 +1432,7 @@
             <v-tab @click="clickCash()">
               Efectivo
               <v-icon>mdi-cash-multiple</v-icon>
-            </v-tab> 
-            <v-tab   @click="clickCredit()">
-              Crédito
-              <v-icon>mdi-account-credit-card</v-icon>
-            </v-tab> 
+            </v-tab>  
           </v-tabs>
 
           <v-tabs-items v-model="tab2">
@@ -1688,53 +1487,7 @@
                 </v-row>
               </v-card>
             </v-tab-item>
-            <v-tab-item  > 
-              <v-card-title v-if="setCustomerId == null">
-                <v-text-field hide-details prepend-inner-icon="mdi-account" color="grey" class=" "  autofocus outlined clearable v-model="searchCustomer" dense label="Buscar cliente"> 
-                </v-text-field> 
-              </v-card-title>
-              <div v-if="setCustomerId == null">
-                <v-virtual-scroll
-                  :items="filteredData"
-                  :item-height="60"
-                  height="300"
-                >
-                  <template v-slot:default="{ item }">
-                  <v-card outlined @click="setCustomer(item.id, item.first_name, item.last_name)" >
-                    <v-list-item > 
-                      <v-list-item-content>
-                        <v-list-item-title class="font-weight-medium subtitle-1">{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
-                        <v-list-item-subtitle class="body-1">{{ item.address }} - {{ item.phone_number }}</v-list-item-subtitle> 
-                      </v-list-item-content> 
-                    </v-list-item>
-                  
-                    </v-card>
-                  </template>
-                </v-virtual-scroll>
-              </div> 
-              <div v-else class="pa-3 title font-weight-medium grey--text mt-4">
-                <v-card outlined class="pa-3" color="#f6fff8">
-                  <v-row justify="space-between">
-                    <div class="pa-3">
-                      {{ this.textSetCustomer }}     
-                    </div>
-                    <div>
-                      <v-btn
-                        class="ma-2"
-                        outlined
-                        fab
-                        small
-                        color="grey"
-                        @click="setCusomerIdF()"
-                      >
-                        <v-icon>mdi-close</v-icon>
-                      </v-btn>
-                    </div> 
-                  </v-row>
-                </v-card>
-              </div>
-
-            </v-tab-item>
+             
           </v-tabs-items>
         </v-card>
 
@@ -1742,21 +1495,14 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-           <v-btn 
-            class="pa-2"
-            depressed 
-            @click="clearInput(), (dialogForm = true), createSale(false)"
-          >
-            <v-icon left  color="red">mdi-printer-off</v-icon> 
-            Cobrar sin imprimir
-          </v-btn>
+           
           <v-btn 
             class="pa-2"
             depressed 
-            @click="clearInput(), (dialogForm = true), createSale(true)"
+            @click=" (dialogForm = true), createSale(true)"
           >
             <v-icon left   color="#2ec4b6">mdi-printer</v-icon> 
-            Cobrar e imprimir
+            Cobrar 
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1978,11 +1724,7 @@ export default {
       ex4: false,
       selectDisabled: false,
       saleDateDetails: [
-        {
-          text: 'Productos',
-          align: 'left',
-          sortable: false, 
-        },
+     
         {
           text: 'Fecha',
           align: 'left',
@@ -2078,8 +1820,7 @@ export default {
 
   created() {
     this.getCashCutting() 
-    this.bid = localStorage.getItem('bo');    
-
+    this.bid = localStorage.getItem('bo');     
     this.customerForm.branch_office = this.bid;
     this.moneyIncomeForm.branch_office = this.bid;
     this.moneyOutForm.branch_office = this.bid;
@@ -2090,15 +1831,16 @@ export default {
     this.getCustomers();
     this.getBoxODataApi();
     this.getMoneyOut();
-    this.getMoneyIncome(); 
-    this.getBonusToday();
-    this.getCreditsLuiquid();
-    this.getCreditsToday();
+    this.getMoneyIncome();  
     this.getSaleByToday();
-    this.getSaleByTodayAll();
-    this.getCreditsNoLi();
+    this.getSaleByTodayAll(); 
     this.getBoxClosed();  
     this.getShoppings();
+
+    setTimeout(() => {
+    console.log(this.moneyIncome, 'money');
+      
+    }, 5000);
     
   },
 
@@ -2145,7 +1887,7 @@ export default {
 
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.get(`${API}api/sales/branch-office-boxc/${this.bid}/`, {headers}).then((r)=>{
-        if (r.data.boxes_closed.lemoneyOutngth > 0) {
+        if (r.data.boxes_closed.length > 0) {
           this.totalBoxClosed = r.data.boxes_closed[0].total;
           this.dateBoxClosed = r.data.boxes_closed[0].date;
           this.timeBoxClosed = r.data.boxes_closed[0].time;
@@ -2159,17 +1901,11 @@ export default {
         this.cashCutting = (JSON.parse(localStorage.getItem('cashCut')) === true);
       }
     },
-
-    getCreditsNoLi(){
-      let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-credits-noli-today/${this.bid}/`, {headers}).then((r)=>{
-        this.creditsNoLi = r.data.credits_today_noli 
-      })
-    },
+ 
 
     cashCut(){ 
  
-      this.getCutOfCashDetail = (this.form1.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.credtisLiquidToday) + this.sumPrecios2(this.bonusToday) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
+      this.getCutOfCashDetail = (this.form1.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
       this.$swal.fire({
         title: '¿Seguro que deseas realizar el corte de caja?',
         text: "¡No podrás revertir esta acción!",
@@ -2225,29 +1961,6 @@ export default {
       }) 
     },
 
-    getCreditsToday(){
-      let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-credits-today/${this.bid}/`, {headers}).then((r)=>{
-        this.creditsToday = r.data.credits_today 
-      })
-    }, 
-
-    getCreditsLuiquid(){
-      let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-credits-l-today/${this.bid}/`, {headers}).then((r)=>{
-        this.credtisLiquidToday = r.data.credits_liquid_today 
-      })
-    },
-
-    getBonusToday(){
-      let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-bonus-today/${this.bid}/`, {headers}).then((r)=>{
-        this.bonusToday = r.data.bonus_today 
-      })
-    },
-
-
-
     setCusomerIdF(){
       this.setCustomerId = null;
     },
@@ -2297,20 +2010,14 @@ export default {
       this.dialogLoading = true;
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.get(`${API}api/sales/branch-office-sales-date/?date_after=${this.dates[0]}&date_before=${this.dates[1]}`, {headers}).then((r)=>{
-       console.log(r.data, " data ")
-        if (r.data.length > 0) {
+       console.log(r.data, " data ")  
+        this.anotherSalesDetial = [] 
           this.dialogLoading = false;
           this.salesByDatePicker = r.data.filter((s)=> s.branch_office.id == this.bid);
-
           this.salesByDatePicker.reverse(); 
           this.salesForCutDay = this.salesByDatePicker.filter((s) => s.payment_type == 1);
-          this.totalSalesToday = this.salesByDatePicker;
-        } else {
-          console.log("si entra");
-          this.dialogLoading = false;
-
-        }
-
+          
+          return r.data; 
        })
     },
 
@@ -2320,7 +2027,7 @@ export default {
         if (r.data.sales_today_cash.length > 0) {
           
           this.salesByTodayCash = r.data.sales_today_cash;
-          console.log(this.salesByTodayCash, " today cashing");
+          this.salesByDatePicker = this.salesByTodayCash;
           this.salesByTodayCash.reverse();  
 
         } else {
@@ -2367,6 +2074,7 @@ export default {
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.get(`${API}api/sales/branch-office-min-d/${this.bid}/`, {headers}).then((r)=>{
         this.moneyIncome = r.data.money_income_today 
+
       })
     },
 
@@ -2412,10 +2120,7 @@ export default {
       }  
     },
  
-    clearInput() {
-      this.listPriceDiscount.push(this.objDiscount);
-      this.$refs.input.reset()
-    },
+   
 
     changeCheckbox(){ 
       this.setCustomerId = null; 
@@ -2529,8 +2234,7 @@ searchArrayNewProductsFeature(e) {
             subtotal: this.newProductsFeature[0].sub_total,
             code: this.newProductsFeature[0].code,
             filling: this.newProductsFeature[0].filling,   
-            unities: 1,
-            type_of_sale: 1,
+            unities: 1, 
             showUnities: false, 
           };
           var obj = {};
@@ -2547,8 +2251,7 @@ searchArrayNewProductsFeature(e) {
           obj["code"] = detailSale.code;
           obj["filling"] = detailSale.filling;  
           obj["unities"] = detailSale.unities;
-          obj["showUnities"] = detailSale.showUnities;
-          obj["type_of_sale"] = detailSale.type_of_sale;
+          obj["showUnities"] = detailSale.showUnities; 
           this.barcode = ""
           if (obj["stock"] < 1) {
             this.errorProductStock()
@@ -2731,8 +2434,7 @@ searchArrayNewProductsFeature(e) {
                 wholesale_price: this.filterProducts.wholesale_price,
                 subtotal: this.filterProducts.sub_total,
                 code: this.filterProducts.code,
-                filling: this.filterProducts.filling,   
-                type_of_sale: 1, 
+                filling: this.filterProducts.filling,    
               };
 
               var obj = {};
@@ -2747,8 +2449,7 @@ searchArrayNewProductsFeature(e) {
               obj["wholesale_price"] = detailSale.wholesale_price;
               obj["sub_total"] = detailSale.subtotal; 
               obj["code"] = detailSale.code;
-              obj["filling"] = detailSale.filling;  
-              obj["type_of_sale"] = detailSale.type_of_sale;
+              obj["filling"] = detailSale.filling;   
 
 
               this.barcode = ""
@@ -2818,189 +2519,29 @@ searchArrayNewProductsFeature(e) {
 
 
     cobrate(){
-      if (this.selectDisabled) {
-        this.textSetCustomer = `${this.customerForm.first_name} ${this.customerForm.last_name}`;
-      }
-      if (this.setCustomerId == null && this.selectDisabled == false) {
-        let timerInterval; 
-          this.$swal.fire( {
-            icon: 'error',
-            title: 'Venta',
-            text: '¡Debes seleccionar o crear un cliente!',
-            confirmButtonText: 'Aceptar',
-            showClass: {
-            popup: 'animate__animated animate__fadeInDown'
-            },
-            hideClass: {
-            popup: 'animate__animated animate__fadeOutUp', 
-            }, 
-            timer: 4000,
-            timerProgressBar: true,
-            didOpen: () => {
-              this.$swal.showLoading() 
-            },
-            willClose: () => {
-              clearInterval(timerInterval); 
-              this.bonusCash = "";
-            }
-          }).then((result) => {
-          return result; 
-        });
-      } else {
-        this.dialogCobro = true;
-
-      }
+      this.dialogCobro = true;
     },
 
     createSale(print) { 
 
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       this.dialogCobro = false;
-      
-      if (this.selectDisabled) {
-
-        this.textSetCustomer = `${this.customerForm.first_name} ${this.customerForm.last_name}`
-        
-
-        axios.post(`${API}api/users/customer/create/`, this.customerForm, { headers }).then((r)=>{
-          this.getCustomers();
-          var gain = (this.sumPrecios(this.gettingProductsBarcode).toFixed(2) - this.sumPreciosGain(this.gettingProductsBarcode));
-          
-          axios.post(
-              `${API}api/sales/create/`,
-              {
-                "discount": 0.0,
-                "total": this.sumPrecios(this.gettingProductsBarcode).toFixed(2),
-                "branch_office": this.bid,
-                "payment_type": this.hasCredit ? 3 : 1,
-                "customer": r.data.id,
-                "gain": gain.toFixed(2),
-                "date": this.date2
-              },
-              { headers }
-            )
-            .then((responsev) => {
-              if (this.hasCredit) {
-                axios.post(
-                  `${API}api/sales/credit/create/`,
-                  {
-                    "branch_office": this.bid,
-                    "customer":  this.setCustomerId, 
-                    "sale": responsev.data.id,
-                    "liquidated": false, 
-                    "total": responsev.data.total,
-                    "date": this.date2
-
-                  },
-                  { headers }
-                ).then((r)=>{
-                  this.getCreditsToday();
-                  
-                  return r.data;
-                })
-              }
-              this.theSaleId = responsev.data.id; 
-              for ( let index = 0; index < this.gettingProductsBarcode.length; index++ ) {
-                
-                axios
-                  .post(
-                    `${API}api/sales/detail-sale/create/`,
-                    {
-                      "sale": responsev.data.id,
-                      "product": this.gettingProductsBarcode[index].id,
-                      "quantity": this.gettingProductsBarcode[index].quanty,
-                      "sub_total": this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].price,
-                      "type_of_sale": 1 ,  
-                    },
-                    { headers }
-                  )
-                  .then((r) => {  
-                    console.log(r.data.type_of_sale, "sales data by");
-                     var restStock = this.gettingProductsBarcode[index].quanty;
-
-                    axios.patch( `${API}api/sales/product/${this.gettingProductsBarcode[index].id}/`,
-                    {
-                      "stock": this.gettingProductsBarcode[index].stock - restStock,
-                    },
-
-                    ).then((response)=>{  
-                      console.log(response.data, "product");
-                      setTimeout(() => ( (this.dialog = false), (this.gettingProductsBarcode = [])), 4000 );
-                      setTimeout(() => this.notifyVue("top", "right"), 5000);
-                      this.getSales();
-                      this.getSaleByDate(); 
-                      this.dialogCobro = false;
-                      this.getDetailSale(this.theSaleId)  
-                      this.customerForm.first_name = "";
-                      this.customerForm.last_name = "";
-                      this.customerForm.address = "";
-                      this.customerForm.phone_number = ""; 
-                      this.customerForm.branch_office = "";  
-                      this.getSaleByDate(); 
-                      this.getSaleByToday(); 
-                      this.getSaleByTodayAll();
-                      this.getCreditsToday(); 
-                      this.getShoppings();
-                      if (print == false) {
-                        this.dialogCash = false;  
-                      } else {
-                        this.dialogCash = true;   
-                      }
-                      return response.data;
-
-                    }).catch((error) => {
-                      return error;
-                    });
-
-                  return r.data;
-                  })
-                  .catch((error) => {
-                    return error;
-                  });
-              }
-            })
-            .catch((error) => {
-              return error;
-
-          });
-        })
-      } else {
-        var gain = (this.sumPrecios(this.gettingProductsBarcode).toFixed(2) - this.sumPreciosGain(this.gettingProductsBarcode));
-        console.log(gain, " gain ");
-        axios.post(
+      var gain = (this.sumPrecios(this.gettingProductsBarcode).toFixed(2) - this.sumPreciosGain(this.gettingProductsBarcode));
+      axios.post(
           `${API}api/sales/create/`,
           {
-            "discount":  0.0,
+            "discount": 0.0,
             "total": this.sumPrecios(this.gettingProductsBarcode).toFixed(2),
             "branch_office": this.bid,
-            "payment_type": this.hasCredit ? 3 : 1,
-            "customer": this.setCustomerId,
+            "payment_type": 1, 
             "gain": gain.toFixed(2),
             "date": this.date2
-
           },
           { headers }
         )
         .then((responsev) => {
-          if (this.hasCredit) {
-                axios.post(
-                  `${API}api/sales/credit/create/`,
-                  {
-                    "branch_office": this.bid,
-                    "customer":  this.setCustomerId, 
-                    "sale": responsev.data.id,
-                    "liquidated": false, 
-                    "total": responsev.data.total,
-                    "date": this.date2
-
-                  },
-                  { headers }
-                ).then((r)=>{
-                  this.getCreditsToday();
-                  return r.data;
-                })
-              }
-          this.theSaleId = responsev.data.id;
+        
+          this.theSaleId = responsev.data.id; 
           for ( let index = 0; index < this.gettingProductsBarcode.length; index++ ) {
             
             axios
@@ -3010,23 +2551,19 @@ searchArrayNewProductsFeature(e) {
                   "sale": responsev.data.id,
                   "product": this.gettingProductsBarcode[index].id,
                   "quantity": this.gettingProductsBarcode[index].quanty,
-                  "sub_total": this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].price,
-                  "type_of_sale": 1 ,
-
+                  "sub_total": this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].price, 
                 },
                 { headers }
               )
-              .then((r) => {  
-                console.log(r.data.type_of_sale, "sales data by");
-                var restStock = this.gettingProductsBarcode[index].quanty;
-                 axios.patch( `${API}api/sales/product/${this.gettingProductsBarcode[index].id}/`,
+              .then((r) => {   
+                  var restStock = this.gettingProductsBarcode[index].quanty;
+
+                axios.patch( `${API}api/sales/product/${this.gettingProductsBarcode[index].id}/`,
                 {
                   "stock": this.gettingProductsBarcode[index].stock - restStock,
                 },
 
-                ).then((response)=>{  
-                  console.log(response.data, "product");
-
+                ).then((response)  => {   
                   setTimeout(() => ( (this.dialog = false), (this.gettingProductsBarcode = [])), 4000 );
                   setTimeout(() => this.notifyVue("top", "right"), 5000);
                   this.getSales();
@@ -3037,36 +2574,32 @@ searchArrayNewProductsFeature(e) {
                   this.customerForm.last_name = "";
                   this.customerForm.address = "";
                   this.customerForm.phone_number = ""; 
-                  this.customerForm.branch_office = "";    
+                  this.customerForm.branch_office = "";  
+                  this.getSaleByDate(); 
+                  this.getSaleByToday(); 
+                  this.getSaleByTodayAll(); 
+                  this.getShoppings();
                   if (print == false) {
                     this.dialogCash = false;  
                   } else {
                     this.dialogCash = true;   
                   }
-                  this.getSaleByDate(); 
-                  this.getSaleByToday();
-                  this.getSaleByTodayAll();
-                  this.getCreditsToday(); 
-                  this.getShoppings();
-
                   return response.data;
+
                 }).catch((error) => {
                   return error;
+                });
 
-                }); 
-                return r.data;
+              return r.data;
               })
               .catch((error) => {
                 return error;
-
               });
           }
-        }).catch((error) => {
-          return error;
-
-        }); 
-      
-      }
+        })
+        .catch((error) => {
+          return error; 
+      }); 
  
     },
 
@@ -3178,9 +2711,7 @@ searchArrayNewProductsFeature(e) {
           this.totalSale = response.data.total;
           this.timeSale = response.data.time;
           this.dateSale = response.data.date;
-          this.customerDetail = `${response.data.customer.first_name} ${response.data.customer.last_name}`;
-
-
+  
           this.detailSalesBySale = response.data.sales;
           switch (response.data.payment_type) {
             case 1:
@@ -3299,7 +2830,7 @@ searchArrayNewProductsFeature(e) {
       axios.get(`${API}api/sales/branch-office-sh-today/${this.bid}/`, { headers,}).then((response) => {
         this.shoppings = response.data.shoppings; 
         console.log(this.sumPrecios2(this.salesByTodayCash),  this.salesByTodayCash, "today casj");
-        this.getCutOfCashDetail = (this.form1.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.credtisLiquidToday) + this.sumPrecios2(this.bonusToday) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
+        this.getCutOfCashDetail = (this.form1.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
 
         this.shoppings.reverse();
         return response.data
