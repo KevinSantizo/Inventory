@@ -7,7 +7,7 @@
         <div>
           <span class="body-2 text--primary font-weight-medium">Apertura de caja </span><br/> 
           <span class="body-2 green--text font-weight-medium">
-            {{totalBoxO}} GTQ  
+            {{form1.totalBoxO}} GTQ  
           </span><br/>
           <span class="body-2 grey--text">
             Hora: {{formatAMPM(timeBoxo)}} 
@@ -41,97 +41,23 @@
       </div> 
     </v-row> 
   </v-footer> 
-  <v-dialog v-model="dialogCash" width="350">
-  <v-card class=" ">
-    <v-card-title class="subtitle-1 grey lighten-2">
-      Vista previa
-    </v-card-title>
-    <v-divider></v-divider>
-    <!-- -->
-    <div ref="document"> 
-      <div class="ticket" id="element-to-convert"> 
-        <div class="centrado mt-3">
-          <img src="@/assets/img/paintc.png" style="height: 100px;" class="mb-3 centrado">
-
-        </div>
-        <v-divider></v-divider>
-        <p class="centrado mt-5">TICKET DE VENTA<br>Fecha: {{parsedDate(dateSale)}}<br>
-            Hora: {{formatAMPM(timeSale) }}</p> 
-          <div class="font-weight-medium centrado mb-3">Cliente: {{customerDetail}}</div>
-
-          <v-divider></v-divider>
-          <table class="ndk centrado">
-            <thead>
-              <tr>
-                <th>Cant.</th> 
-                <th>Descripción</th>
-                <th>Precio</th> 
-                <th>Desc.</th> 
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(item, index) in detailSalesBySale" :key="index" >
-                <td class="text-center font-weight-medium border_bottom">
-                  {{ item.quantity }}
-                </td>
-                <td class="text-left font-weight-medium border_bottom">
-                  {{ item.product_name }} - {{ item.filling }}
-                </td> 
-                <td class="text-right font-weight-medium border_bottom">
-                  Q.{{item.product_sale_price }} 
-                </td>
-                <td class="text-right font-weight-medium border_bottom">
-                  Q.{{item.product_sale_price - item.sub_total }} 
-                </td>
-                <td class="text-right font-weight-medium border_bottom">
-                  Q.{{ item.sub_total }} 
-                </td>
-              </tr>  
-              
-              <tr class="border_bottom">
-                <td></td>
-                <td></td> 
-                <td></td> 
-
-                <td class="font-weight-medium " style="font-weight: bold !important;" >  
-                    TOTAL 
-                </td>
-                <td class="font-weight-medium " style="font-weight: bold !important;"> 
-                    Q.{{totalSale}}
-                </td>
-              </tr>
-            </tbody>
-          </table>  
-           
-          <div v-if="hasCredit">
-
-          <p class="centrado mt-5 font-weight-medium mb-5">*Venta a crédito*<br>
-            Firma cliente</p> 
-          <v-divider class="mr-5 ml-5 mt-5 font-weight-medium" style="margin-top: 50px !important;"> </v-divider>
-          <div class="subtitle-1 centrado font-weight-medium">
-            {{customerDetail}}
-          </div>
-          </div>
-          <div class="font-weight-medium mt-3 subtitle-1 centrado mb-5">¡Gracias por su compra!</div>
-          </div>
-      </div>  
-      <v-card-actions>
-        <v-spacer></v-spacer>
-         <v-btn
-            depressed 
-            elevation="0" @click="exportToPDF" >
-            <v-icon left  color="#2ec4b6">mdi-printer</v-icon>
-          Imprimir
-        </v-btn>
-    </v-card-actions>
-    </v-card>
-    
-  </v-dialog>
+   
   <v-dialog v-model="searchForProduct" hide-overlay persistent width="300">
       <v-card color="#3fa7d6" dark>
         <v-card-text>
           Buscando producto
+          <v-progress-linear
+            indeterminate
+            color="white"
+            class="mb-0"
+          ></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="dialogLoading" hide-overlay persistent width="300">
+      <v-card color="#3fa7d6" dark>
+        <v-card-text>
+          Cargando, por favor espera...
           <v-progress-linear
             indeterminate
             color="white"
@@ -198,6 +124,7 @@
               </v-text-field> 
             </div>
             <v-divider></v-divider> 
+            <div v-if="this.log.length<2">
               <v-row justify="center" class="mt-4 mb-1">
                 <div class="display-1 center">
                   {{productVerifyName}} {{productVerifyFilling}} 
@@ -214,11 +141,47 @@
                 Q {{productVerifyPrice}}
               </div>
             </v-row>  
+          </div>
+          <div v-else>
+            <v-list>
+              <v-list-item-group
+                v-model="model"
+                mandatory
+                color="#2ec4b6"
+              >
+                <v-list-item
+                  v-for="(item, i) in this.log"
+                  :key="i" 
+                > 
+                  <v-list-item-content>
+                    <v-list-item-title>{{item.name}} {{item.filling}}</v-list-item-title>
+                    <v-list-item-subtitle>Existencia: {{item.stock}}</v-list-item-subtitle>
+                    <v-list-item-subtitle>Precio: Q{{item.sale_price}}</v-list-item-subtitle>
+                 
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn 
+                      color="#2ec4b6"
+                      dark
+                      outlined
+                      min-width="200"
+                      elevation="0"
+                      @click="addToSale(item.barcode)" 
+                    >
+                      <v-icon dark class="mr-3"> mdi-check </v-icon>
+                      Agregar a venta
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </div>
           </v-card-text> 
           <v-card outlined color="grey lighten-4">
             <v-card-actions > 
               <v-row justify="space-between" class="ma-3"> 
                 <v-btn 
+                  v-show="this.log.length<2"
                   color="#2ec4b6"
                   dark
                   min-width="200"
@@ -228,7 +191,10 @@
                   <v-icon dark class="mr-3"> mdi-chevron-left </v-icon>
                   Cancelar
                 </v-btn>
+                <v-spacer></v-spacer>
+                
                 <v-btn 
+                  v-if="this.log.length<2"
                   color="#2ec4b6"
                   dark
                   min-width="200"
@@ -238,12 +204,83 @@
                   <v-icon dark class="mr-3"> mdi-check </v-icon>
                   Agregar a venta
                 </v-btn>
+                <v-btn 
+                  v-else
+                  color="#2ec4b6"
+                  dark
+                  min-width="200"
+                  elevation="0"
+                  @click="(showVerifier = false)" 
+                >
+                  <v-icon dark class="mr-3"> mdi-check </v-icon>
+                  Aceptar
+                </v-btn>
               </v-row>
 
             </v-card-actions>
           </v-card> 
         </v-card> 
       </v-dialog> 
+      <v-dialog width="700" v-model="dialogGreatherThanOneProduct">
+        <v-card>
+          <v-card-title class="text-h5 grey lighten-2">
+            Productos encontrados 
+          </v-card-title>
+          <v-divider></v-divider> 
+          <div>
+            <v-list>
+              <v-list-item-group
+                v-model="model"
+                mandatory
+                color="#2ec4b6"
+              >
+                <v-list-item
+                  v-for="(item, i) in this.newProductsFeature"
+                  :key="i" 
+                > 
+                  <v-list-item-content>
+                    <v-list-item-title>{{item.name}} {{item.filling}}</v-list-item-title>
+                    <v-list-item-subtitle>Existencia: {{item.stock}}</v-list-item-subtitle>
+                    <v-list-item-subtitle>Precio: Q{{item.sale_price}}</v-list-item-subtitle>
+                 
+                  </v-list-item-content>
+                  <v-list-item-action>
+                    <v-btn 
+                      color="#2ec4b6"
+                      dark
+                      min-width="200"
+                      outlined
+                      elevation="0"
+                      @click="addToSale(item.barcode)" 
+                    >
+                      <v-icon dark class="mr-3"> mdi-check </v-icon>
+                      Agregar a venta
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </div>
+          <v-card outlined color="grey lighten-4">
+            <v-card-actions > 
+              <v-row justify="space-between" class="ma-3"> 
+                <v-spacer></v-spacer>
+                <v-btn 
+                  color="#2ec4b6"
+                  dark
+                  min-width="200"
+                  elevation="0"
+                  @click="(dialogGreatherThanOneProduct = false)" 
+                >
+                  <v-icon dark class="mr-3"> mdi-check </v-icon>
+                  Aceptar
+                </v-btn>
+              </v-row>
+
+            </v-card-actions>
+          </v-card> 
+        </v-card>
+      </v-dialog>
       <v-dialog width="700" v-model="moneyIncomeDialog"> 
         <v-card >  
           <v-card-title class="text-h5 grey lighten-2">
@@ -526,7 +563,7 @@
                 v-model="barcode"
                 :autofocus="autofocus"
                 solo
-                v-on:keyup.enter="submit"
+                v-on:keyup.enter="searchArrayNewProductsFeature"
                 label="Buscar por código de barras"
               ></v-text-field>  
             </v-col> 
@@ -565,7 +602,7 @@
                     cols="12"
                     sm="6" 
                   >
-                  <v-autocomplete
+                 <!--  <v-autocomplete
                     :disabled="selectDisabled"
                     ref="input"
                     class=""
@@ -583,7 +620,7 @@
                     dense
                     value="id" 
                     v-model="customerName"
-                  ></v-autocomplete>
+                  ></v-autocomplete> -->
                   </v-col>
                   <v-col cols="6">
                     <v-text-field
@@ -598,7 +635,7 @@
                     ></v-text-field>
                   </v-col>
                 </v-row>  
-                <v-row>
+               <!--  <v-row>
                   <v-col md="2">
                     <v-card  class="pb-4 pl-4 pr-4 "  outlined style="border-color: #2ec4b6;"> 
                       <v-checkbox
@@ -611,7 +648,7 @@
                       ></v-checkbox>  
                     </v-card>
                   </v-col> 
-                </v-row>
+                </v-row>-->
                 
                   <div v-show="selectDisabled">
                     <v-row class="">
@@ -685,14 +722,8 @@
                         <div class="subtitle-1 font-weight-medium">
                           Cantidad
                         </div>
-                      </th>
-                      <th class="text-center">
-                        <div class="subtitle-1 font-weight-medium">
-                          Tipo de venta
-                        </div>
-                      </th>  
-                      <th></th>
-                      <th class="text-right">
+                      </th>   
+                      <th class="text-LEFT">
                         <div class="subtitle-1 font-weight-medium">Precio</div>
                       </th>
                       <th class="text-right">
@@ -734,78 +765,6 @@
                           </v-col>
                         </v-row>
                       </td>
-                 
-                      <td align="center" class="text-center font-weight-medium">
-                        <v-row class="mt-2 ml-5" justify="center"> 
-                          <v-col cols="6">
-                            <v-select 
-                              class="mr-2"
-                              :items="typeOfSales"
-                              return-object
-                              :label="typeOfSale"
-                              @change="selectTypeOfSale"
-                              required
-                              outlined
-                              dense
-                              v-model.trim="item.type_of_sale"
-                              item-value="id"
-                              color="#3fa7d6"
-                              item-text="name"> 
-                            </v-select>
-                          </v-col>
-                          <div class="mt-3">
-                            <v-btn 
-                              @click="dialogTypeOfsale= true"
-                              x-small
-                              dark
-                              fab
-                              color="green"
-                            >
-                              <v-icon dark> mdi-plus </v-icon>
-                            </v-btn>
-                          </div>
-                          
-                        </v-row> 
-                      </td> 
-                      <div v-if="(typeof item.type_of_sale == 'number')">
-                        <td v-if="!item.type_of_sale == 1"  align="center" class="text-center font-weight-medium">
-                          <v-row class="mt-2" justify="left">
-                            <v-col cols="6" sm="8">
-                              <v-text-field
-                                type="number"
-                                dense
-                                color="#3fa7d6"
-                                outlined
-                                min="1" 
-                                label="Unidades"
-                                v-model.number="item.unities"
-                                @change="sumPrecios(gettingProductsBarcode), sumTextField()"
-
-                                >
-                              </v-text-field>
-                            </v-col>
-                          </v-row>
-                        </td>  
-                      </div>
-                      
-                      <td v-else-if="item.type_of_sale.id != 1 "  align="center" class="text-center font-weight-medium">
-                        <v-row class="mt-2" justify="left">
-                          <v-col cols="6" sm="8">
-                            <v-text-field
-                              type="number"
-                              dense
-                              color="#3fa7d6"
-                              outlined
-                              min="1" 
-                              label="Unidades"
-                              v-model.number="item.unities"
-                              @change="sumPrecios(gettingProductsBarcode), sumTextField()"
-
-                              >
-                            </v-text-field>
-                          </v-col>
-                        </v-row>
-                      </td> 
                       <td class=" text-right font-weight-medium">
                         <v-row class="mt-2" justify="end">
                           <v-col cols="6" sm="12">
@@ -824,7 +783,7 @@
                         </v-row> 
                       </td>
                       <td class="text-right font-weight-medium">
-                        {{  item.price * item.quanty * item.unities }} GTQ
+                        {{  item.price * item.quanty  }} GTQ
                       </td>
                       <td>
                         <v-btn
@@ -865,18 +824,19 @@
                 <v-card @click="modal = true" outlined class="pa-2">
                   <v-icon> mdi-calendar-month </v-icon>  <span class="subtitle-1 ml-3 grey--text font-weight-medium">Ver por fecha</span> 
                 </v-card>
-                <v-dialog ref="dialog" v-model="modal" :return-value.sync="date" persistent width="300px">
+                <v-dialog ref="dialog" v-model="modal" :return-value.sync="dates" persistent width="300px">
                    
                   <v-date-picker 
                     ref="picker"
-                    v-model="date"  
+                    v-model="dates"  
                     locale="es-ES"  
                     scrollable 
+                    range
                     header-color="#1D3557" 
                     color="#1D3557">
                     <v-spacer></v-spacer>
                     <v-btn text color="#1D3557" @click="modal = false">Cancelar</v-btn>
-                    <v-btn text color="#1D3557" @click="$refs.dialog.save(date), getSaleByDate()">aceptar</v-btn>
+                    <v-btn text color="#1D3557" @click="$refs.dialog.save(dates), getSaleByDate()">aceptar</v-btn>
                   </v-date-picker>
                 </v-dialog>
               </v-col>
@@ -935,99 +895,13 @@
               cols="12"
               sm="6"
               >
-            <v-card class=" " flat   v-if="showFirstSale">  
-              <!-- -->
-              <div ref="document" v-if="this.salesByDatePicker.length > 0"> 
-                <div class=" " id="element-to-convert"> 
-                  <div v-if="this.salesByDatePicker[0].customer.first_name" class="font-weight-medium mt-3">Cliente: {{this.salesByDatePicker[0].customer.first_name || " '' "}} {{this.salesByDatePicker[0].customer.last_name || " '' "}}</div>
+ 
 
-                    <p class=" ">  {{parsedDate(this.salesByDatePicker[0].date)}} {{formatAMPM(this.salesByDatePicker[0].time) }}</p> 
-
-                    <v-divider></v-divider>
-                    <table class="ndk centrado">
-                      <thead>
-                        <tr>
-                          <th>
-                            <div class="text-center">
-                              Cant.
-                            </div>
-                          </th> 
-                          <th>
-                            <div class="text-center">
-                              Descripción
-                            </div>
-                          </th>
-                          <th>
-                            <div class="text-center">
-                              Tipo de venta
-                            </div>
-                          </th>
-                          <th>
-                            <div class="text-center">
-                              Precio
-                            </div>
-                          </th> 
-                          <th>
-                            <div class="text-center">
-                              Descuento
-                            </div>
-                          </th> 
-                          <th>
-                            <div class="text-center">
-                              Subtotal
-                            </div> 
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(item, index) in this.salesByDatePicker[0].sales" :key="index" >
-                          <td class="text-center font-weight-medium   ">
-                            {{ item.quantity }}
-                          </td>
-                          <td class="text-center font-weight-medium   ">
-                            {{ item.product_name }} - {{ item.filling }}
-                          </td> 
-                          <td class="text-center font-weight-medium   ">
-                            {{ item.type_of_sale }}  
-                          </td> 
-                          <td class="text-center font-weight-medium   ">
-                            Q.{{item.product_sale_price }} 
-                          </td>
-                          <td class="text-center font-weight-medium   ">
-                            Q.{{ item.type_of_sale != "Unidad" ? ' --- ' : (item.quantity * item.product_sale_price) - item.sub_total}} 
-                          </td>
-                          <td class="text-center font-weight-medium   ">
-                            Q.{{ item.sub_total }} 
-                          </td>
-                        </tr>  
-                      </tbody>
-                    </table>  
-                    <v-row justify="center" class="mt-3 " >
-                        <div class="text-center title font-weight-medium mr-2">
-                            Total:  
-                        </div>
-                        <div class="text-center grey--text title font-weight-medium ">
-                            Q{{this.salesByDatePicker[0].total}}
-                        </div>
-                        </v-row>  
-                      <v-row justify="center" class="mt-3 mb-4">
-                        <div class="text-center title font-weight-medium mr-1">
-                          Pagó con:  
-                        </div>
-                        <div class="text-center grey--text title font-weight-medium ">
-                          {{fixPaymentType( this.salesByDatePicker[0].payment_type)}}
-                        </div>
-                      </v-row> 
-                  </div>
-                </div>   
-              </v-card>
-
-              <v-card v-else flat  >  
+              <v-card flat  >  
                 <!-- -->
                 <div ref="document"> 
                   <div class=" " id="element-to-convert"> 
-                    <div class="font-weight-medium mt-3">Cliente: {{this.anotherSalesDetial.customer.first_name}} {{this.anotherSalesDetial.customer.last_name}}</div>
-
+ 
                       <p class=" "> {{parsedDate(this.anotherSalesDetial.date)}}  {{formatAMPM(this.anotherSalesDetial.time) }}</p> 
 
                       <v-divider></v-divider>
@@ -1043,22 +917,12 @@
                               <div class="text-center">
                                 Descripción
                               </div>
-                            </th>
-                            <th>
-                              <div class="text-center">
-                                Tipo de venta
-                              </div>
-                            </th>
+                            </th>  
                             <th>
                               <div class="text-center">
                                 Precio
                               </div>
-                            </th> 
-                            <th>
-                              <div class="text-center">
-                                Descuento
-                              </div>
-                            </th> 
+                            </th>  
                             <th>
                               <div class="text-center">
                                 Subtotal
@@ -1073,17 +937,11 @@
                             </td>
                             <td class="text-center font-weight-medium   ">
                               {{ item.product_name }} - {{ item.filling }}
-                            </td> 
-                            <td class="text-center font-weight-medium   ">
-                              {{ item.type_of_sale }}  
-                            </td> 
+                            </td>  
 
                             <td class="text-center font-weight-medium   ">
                               Q.{{item.product_sale_price }} 
-                            </td>
-                            <td class="text-center font-weight-medium   ">
-                              Q.{{ item.type_of_sale != "Unidad" ? ' --- ' : (item.quantity * item.product_sale_price) - item.sub_total}} 
-                            </td>
+                            </td> 
                             <td class="text-center font-weight-medium   ">
                               Q.{{ item.sub_total }} 
                             </td>
@@ -1098,15 +956,7 @@
                         <div class="text-center grey--text title font-weight-medium ">
                             Q{{this.anotherSalesDetial.total}}
                         </div>
-                        </v-row> 
-                        <v-row justify="center" class="mt-3 mb-4" >
-                          <div class="text-center title font-weight-medium mr-2">
-                            Pagó con:  
-                          </div>
-                          <div class="text-center grey--text title font-weight-medium ">
-                           {{fixPaymentType( this.anotherSalesDetial.payment_type)}}
-                          </div>
-                        </v-row> 
+                        </v-row>  
                     </div>
                   </div>   
               </v-card>
@@ -1222,20 +1072,13 @@
                 <table> 
                   <tr>
                     <td class="text-left grey--text font-weight-bold"> Fondo de caja </td>
-                    <td class="text-right grey--text font-weight-bold"> Q {{this.numberWithCommas(totalBoxO)}} </td>
+                    <td class="text-right grey--text font-weight-bold"> Q {{this.numberWithCommas(this.form1.totalBoxO)}} </td>
                    </tr>
                   <tr>
                     <td class="text-left grey--text font-weight-bold"> Ventas en efectivo ({{salesByTodayCash.length}})</td>
                     <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(salesByTodayCash).toFixed(2)) }}</td>
                   </tr>
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold"> Créditos liquidados </td>
-                    <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(credtisLiquidToday).toFixed(2)) }}</td>
-                  </tr>
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold"> Abonos en efectivo </td>
-                    <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(bonusToday).toFixed(2)) }}  </td>
-                   </tr>
+                   
                   <tr>
                     <td class="text-left grey--text font-weight-bold"> Entradas </td>
                     <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(moneyIncome).toFixed(2)) }} </td>
@@ -1266,30 +1109,14 @@
                   <v-icon color="blue">
                     mdi-cash
                   </v-icon>
-                  Ventas / Créditos / Abonos
+                  Ventas 
                 </div>
               </v-card-text>
                 <table>  
                   <tr>
                     <td class="text-left grey--text font-weight-bold"> Ventas en efectivo </td>
                     <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(salesByTodayCash).toFixed(2)) }}</td>
-                  </tr>
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold">Total Créditos </td>
-                    <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(creditsToday).toFixed(2)) }}</td>
-                  </tr>
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold">Créditos liquidados (hoy) </td>
-                    <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(credtisLiquidToday).toFixed(2)) }}</td>
-                  </tr> 
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold">Créditos no liquidados (hoy) </td>
-                    <td class="text-right green--text font-weight-bold"> + Q {{numberWithCommas(sumPrecios2(creditsNoLi).toFixed(2)) }}</td>
-                  </tr> 
-                  <tr>
-                    <td class="text-left grey--text font-weight-bold"> Total abonos a créditos (hoy)  </td>
-                    <td class="text-right green--text font-weight-bold">+ Q {{numberWithCommas(sumPrecios2(bonusToday).toFixed(2)) }}  </td>
-                  </tr>  
+                  </tr>   
                 </table> 
               </v-card>
             </v-col>
@@ -1465,241 +1292,6 @@
         </v-data-table> 
       </v-card>
     </v-card>
-    <div class="text-center">
-      <v-dialog scrollable v-model="dialogDetailSale" width="800">
-        <v-card flat elevation="0">
-          <v-card-title class="text-h5 grey lighten-2">
-            Detalle de venta
-          </v-card-title>
-          <v-list-item>
-            <v-list-item-content>
-              <div>
-                <v-simple-table class="pa-5" fixed-header>
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th class=" ">
-                        <div class="text-left subtitle-1 font-weight-medium">
-                          #Descripción
-                        </div>
-                      </th>
-                      <th class="text-center">
-                        <div class="subtitle-1 font-weight-medium">
-                          Cantidad
-                        </div>
-                      </th>
-
-                      <th class="text-center">
-                        <div class="subtitle-1 font-weight-medium">
-                          Tipo de venta
-                        </div>
-                      </th>
-                      
-                      <th class="text-right">
-                        <div class="subtitle-1 font-weight-medium">Precio</div>
-                      </th>
-                      <th class="text-right">
-                        <div class="subtitle-1 font-weight-medium">
-                          Subtotal
-                        </div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(item, index) in detailSalesBySale" :key="index">
-                      <td class="text-right font-weight-medium grey--text">
-                        {{ index + 1 }}
-                      </td>
-                      <td class="text-left font-weight-medium">
-                        {{ item.product_name }} - {{ item.product_code }}
-                      </td>
-                      <td class="text-center font-weight-medium">
-                        {{ item.quantity }}
-                      </td>
-                      <td :class="item.type_of_sale_id == 1 || typeOfSaleId == 1 ?  'text-center font-weight-medium' : 'text-center green--text font-weight-medium' ">
-                        {{ item.type_of_sale }}
-                      </td>
-                      <td :class="item.type_of_sale_id == 1 || typeOfSaleId == 1 ?  'text-right font-weight-medium' : 'text-right green--text font-weight-medium' ">
-                        {{ item.type_of_sale_id > 1 ? item.product_wholesale_price : item.product_sale_price }} GTQ {{item.type_of_sale_id > 1 ? " (D)*": ""}}
-                      </td>
-                      <td :class="item.type_of_sale_id > 1 ? 'text-right green--text font-weight-medium' : 'text-right font-weight-medium' ">
-                        {{ item.sub_total }} GTQ {{item.type_of_sale_id > 1 ? "*": ""}}
-                      </td>
-                    </tr>
-                  </tbody>
-                </v-simple-table>
-
-                <div
-                  class="subtitle-1 font-weight-bold black--text"
-                  style="
-                    margin-right: 33px !important;
-                    margin-bottom: 100px;
-                    float: right;
-                  "
-                >
-                 Total {{ totalSale }} GTQ
-                </div>
-              </div>
-              <v-card class="mt-5" outlined color="grey lighten-3">
-                <v-card-actions justify="center">
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="#3fa7d6"
-                    dark
-                    elevation="0"
-                    @click="dialogDetailSale = false"
-                  >
-                    Aceptar
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-list-item-content>
-          </v-list-item>
-        </v-card>
-      </v-dialog>
-    </div>
-
-    <div class="text-center">
-      <v-dialog
-      fullscreen
-      hide-overlay
-      transition="dialog-bottom-transition"
-      v-model="dialogInvoice" width="800">
-      <v-card flat elevation="0">
-        <v-toolbar
-          dark
-          color="grey lighten-2"
-          elevation="0" 
-        > 
-          <v-btn
-            v-if="!disabledForPrint"
-            icon 
-            :disabled="disabledForPrint"
-            @click="dialogInvoice = false"
-          >
-            <v-icon :color="disabledForPrint ? 'white' : 'black' ">mdi-close</v-icon>
-          </v-btn>
-
-          <template v-slot:extension v-if="!disabledForPrint">
-              <v-fab-transition >
-                <v-btn 
-                  :disabled="disabledForPrint"
-                  class="mr-15"
-                  color="#2f4858"
-                  fab
-                  dark 
-                  absolute
-                  bottom
-                  right
-                  @click="printing"
-                >
-                  <v-icon>mdi-printer</v-icon>
-                </v-btn>
-              </v-fab-transition>
-            </template> 
-        </v-toolbar> 
-        
-        <div style="margin-right: 200px; margin-left: 200px;">
-          <v-list> 
-            <v-list-item>
-              <v-list-item-content>
-                <v-card-title class="text-h5 font-weight-bold">
-                  Comprobante de compra
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-card-title class="text-h5">
-                  Fecha
-                </v-card-title>
-                <v-card-subtitle class="title">
-                  yyyy/mm/dd
-                </v-card-subtitle> 
-                <v-card-title class="text-h5">
-                  Nombre de la Tienda 
-                </v-card-title>
-                <v-card-subtitle class="title">
-                  Dirección de la Tienda 
-                </v-card-subtitle> 
-                <v-card-title class="text-h5">
-                  Cliente
-                </v-card-title>
-                <v-card-subtitle class="title">
-                  Nombre cliente
-                </v-card-subtitle> 
-                <v-divider></v-divider>
-                <div>
-                  <v-simple-table class="pa-5" fixed-header>
-                    <thead>
-                      <tr>
-                        <th></th>
-                        <th class=" ">
-                          <div class="text-left subtitle-1 font-weight-medium">
-                            #Descripción
-                          </div>
-                        </th>
-                        <th class="text-center">
-                          <div class="subtitle-1 font-weight-medium">
-                            Cantidad
-                          </div>
-                        </th>
-
-                        <th class="text-center">
-                          <div class="subtitle-1 font-weight-medium">
-                            Tipo de venta
-                          </div>
-                        </th>
-                        
-                        <th class="text-right">
-                          <div class="subtitle-1 font-weight-medium">Precio</div>
-                        </th>
-                        <th class="text-right">
-                          <div class="subtitle-1 font-weight-medium">
-                            Subtotal
-                          </div>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(item, index) in detailSalesBySale" :key="index">
-                        <td class="text-right font-weight-medium grey--text">
-                          {{ index + 1 }}
-                        </td>
-                        <td class="text-left font-weight-medium">
-                          {{ item.product_name }} - {{ item.product_code }}
-                        </td>
-                        <td class="text-center font-weight-medium">
-                          {{ item.quantity }}
-                        </td>
-                        <td :class="item.type_of_sale_id == 1 || typeOfSaleId == 1 ?  'text-center font-weight-medium' : 'text-center green--text font-weight-medium' ">
-                          {{ item.type_of_sale }}
-                        </td>
-                        <td :class="item.type_of_sale_id == 1 || typeOfSaleId == 1 ?  'text-right font-weight-medium' : 'text-right green--text font-weight-medium' ">
-                          {{ item.type_of_sale_id > 1 ? item.product_wholesale_price : item.product_sale_price }} GTQ {{item.type_of_sale_id > 1 ? " (D)*": ""}}
-                        </td>
-                        <td :class="item.type_of_sale_id > 1 ? 'text-right green--text font-weight-medium' : 'text-right font-weight-medium' ">
-                          {{ item.sub_total }} GTQ {{item.type_of_sale_id > 1 ? "*": ""}}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </v-simple-table>
-
-                  <div
-                    class="subtitle-1 font-weight-bold black--text"
-                    style="
-                      margin-right: 33px !important;
-                      margin-bottom: 100px;
-                      float: right;
-                    "
-                  >
-                  Total {{ totalSale }} GTQ
-                  </div>
-                </div>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list> 
-        </div>
-        </v-card>
-      </v-dialog>
-    </div>
       <div class="text-center">
         <v-dialog
           transition="dialog-bottom-transition"
@@ -1840,11 +1432,7 @@
             <v-tab @click="clickCash()">
               Efectivo
               <v-icon>mdi-cash-multiple</v-icon>
-            </v-tab> 
-            <v-tab   @click="clickCredit()">
-              Crédito
-              <v-icon>mdi-account-credit-card</v-icon>
-            </v-tab> 
+            </v-tab>  
           </v-tabs>
 
           <v-tabs-items v-model="tab2">
@@ -1899,53 +1487,7 @@
                 </v-row>
               </v-card>
             </v-tab-item>
-            <v-tab-item  > 
-              <v-card-title v-if="setCustomerId == null">
-                <v-text-field hide-details prepend-inner-icon="mdi-account" color="grey" class=" "  autofocus outlined clearable v-model="searchCustomer" dense label="Buscar cliente"> 
-                </v-text-field> 
-              </v-card-title>
-              <div v-if="setCustomerId == null">
-                <v-virtual-scroll
-                  :items="filteredData"
-                  :item-height="60"
-                  height="300"
-                >
-                  <template v-slot:default="{ item }">
-                  <v-card outlined @click="setCustomer(item.id, item.first_name, item.last_name)" >
-                    <v-list-item > 
-                      <v-list-item-content>
-                        <v-list-item-title class="font-weight-medium subtitle-1">{{ item.first_name }} {{ item.last_name }}</v-list-item-title>
-                        <v-list-item-subtitle class="body-1">{{ item.address }} - {{ item.phone_number }}</v-list-item-subtitle> 
-                      </v-list-item-content> 
-                    </v-list-item>
-                  
-                    </v-card>
-                  </template>
-                </v-virtual-scroll>
-              </div> 
-              <div v-else class="pa-3 title font-weight-medium grey--text mt-4">
-                <v-card outlined class="pa-3" color="#f6fff8">
-                  <v-row justify="space-between">
-                    <div class="pa-3">
-                      {{ this.textSetCustomer }}     
-                    </div>
-                    <div>
-                      <v-btn
-                        class="ma-2"
-                        outlined
-                        fab
-                        small
-                        color="grey"
-                        @click="setCusomerIdF()"
-                      >
-                        <v-icon>mdi-close</v-icon>
-                      </v-btn>
-                    </div> 
-                  </v-row>
-                </v-card>
-              </div>
-
-            </v-tab-item>
+             
           </v-tabs-items>
         </v-card>
 
@@ -1953,21 +1495,14 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-           <v-btn 
-            class="pa-2"
-            depressed 
-            @click="clearInput(), (dialogForm = true), createSale(false)"
-          >
-            <v-icon left  color="red">mdi-printer-off</v-icon> 
-            Cobrar sin imprimir
-          </v-btn>
+           
           <v-btn 
             class="pa-2"
             depressed 
-            @click="clearInput(), (dialogForm = true), createSale(true)"
+            @click=" (dialogForm = true), createSale(true)"
           >
             <v-icon left   color="#2ec4b6">mdi-printer</v-icon> 
-            Cobrar e imprimir
+            Cobrar 
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -1981,46 +1516,53 @@
       width="500"
     > 
       <v-card>
-        <v-card-title class="text-h5 grey lighten-2">
-          Apertura de caja
-        </v-card-title>
-        <div class="d-flex align-center"> 
-        <v-list-item> 
-          <v-list-item-content>
-            <v-list-item-title >
-              <v-row justify="center" class="mb-8  mt-3">
-                <div class="center-text headline mt-3 font-weight-medium blue--text"> 
-                  ¿Cuánto dinero hay en caja?
+        <v-form   ref="form1" lazy-validation> 
+          <v-card-title class="text-h5 grey lighten-2">
+            Apertura de caja
+          </v-card-title>
+          <div class="d-flex align-center"> 
+          <v-list-item> 
+            <v-list-item-content>
+              <v-list-item-title >
+                <v-row justify="center" class="mb-8  mt-3">
+                  <div class="center-text headline mt-3 font-weight-medium blue--text"> 
+                    ¿Cuánto dinero hay en caja?
+                  </div>
+                </v-row>
+              </v-list-item-title>  
+                <v-text-field 
+                  class="ml-10 mr-10 mb-2"
+                  v-model.number="form1.totalBoxO" 
+                  hide-details
+                  prefix="Q." 
+                  color="#26547c"
+                  required
+                  outlined
+                  label="Ingrese la cantidad"
+                  dense 
+                  clearable 
+                  :rules="obligatorioRules"
+                ></v-text-field> 
+                <div v-show="valid" class="ml-10 body font-weight-medium red--text"> 
+                  ¡Campo obligatorio!
                 </div>
-              </v-row>
-            </v-list-item-title>  
-              <v-text-field 
-                class="ml-10 mr-10 mb-2"
-                v-model.number="totalBoxO" 
-                hide-details
-                prefix="Q." 
-                color="#26547c"
-                required
-                outlined
-                label="Ingrese la cantidad"
-                dense 
-                clearable 
-              ></v-text-field> 
-            </v-list-item-content>
-          </v-list-item> 
-        </div> 
-        <v-divider></v-divider> 
-        <v-card-actions>
-          <v-spacer></v-spacer> 
-          <v-btn 
-            class="pa-2"
-            depressed 
-            @click="(dialogForm = true), createBoxOpen()"
-          >
-            <v-icon left dark size="25" color="#2ec4b6">mdi-cash</v-icon> 
-            Registrar 
-          </v-btn>
-        </v-card-actions>
+              </v-list-item-content>
+            </v-list-item> 
+          </div> 
+          <v-divider></v-divider> 
+          <v-card-actions>
+            <v-spacer></v-spacer> 
+            <v-btn 
+              class="pa-2"
+              depressed 
+              @click="validate()" 
+            >
+              <v-icon left dark size="25" color="#2ec4b6">mdi-cash</v-icon> 
+              Registrar 
+            </v-btn>
+          </v-card-actions>
+        </v-form> 
+
       </v-card>
     </v-dialog>
   </div>
@@ -2165,12 +1707,15 @@ export default {
       customerName: "", 
       boxOpened: [],
       dialogBoxO: false,
-      totalBoxO: "",
+      obligatorioRules: [(v) => !!v || "Campo obligatorio"],
+      form1: {
+        totalBoxO: "",
+      },
+      valid: false,
       timeBoxo: "",
       moneyOut: [],
       moneyIncome: [],
-      showBoxOpen: false,
-      dates: [' ', ''], 
+      showBoxOpen: false, 
       modal: false,
       date: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       date2: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -2179,11 +1724,7 @@ export default {
       ex4: false,
       selectDisabled: false,
       saleDateDetails: [
-        {
-          text: 'Productos',
-          align: 'left',
-          sortable: false, 
-        },
+     
         {
           text: 'Fecha',
           align: 'left',
@@ -2254,9 +1795,15 @@ export default {
       listPriceDiscount: [],
       objDiscount: {},
       disableTypeOfSaleDetail: false,
-      typeOfSaleNum: 0
+      typeOfSaleNum: 0,
+      newProductsFeature: [],
+      dialogGreatherThanOneProduct: false,
+      dates: ['', ''],
+      dialogLoading: false
+ 
     };
   },
+ 
 
 
   computed: {
@@ -2273,8 +1820,7 @@ export default {
 
   created() {
     this.getCashCutting() 
-    this.bid = localStorage.getItem('bo');    
-
+    this.bid = localStorage.getItem('bo');     
     this.customerForm.branch_office = this.bid;
     this.moneyIncomeForm.branch_office = this.bid;
     this.moneyOutForm.branch_office = this.bid;
@@ -2285,16 +1831,16 @@ export default {
     this.getCustomers();
     this.getBoxODataApi();
     this.getMoneyOut();
-    this.getMoneyIncome();
-    this.getSaleByDate();
-    this.getBonusToday();
-    this.getCreditsLuiquid();
-    this.getCreditsToday();
+    this.getMoneyIncome();  
     this.getSaleByToday();
-    this.getSaleByTodayAll();
-    this.getCreditsNoLi();
+    this.getSaleByTodayAll(); 
     this.getBoxClosed();  
     this.getShoppings();
+
+    setTimeout(() => {
+    console.log(this.moneyIncome, 'money');
+      
+    }, 5000);
     
   },
 
@@ -2308,7 +1854,20 @@ export default {
 
   methods: {
 
- 
+    validate () {  
+      if (this.form1.totalBoxO == "") {
+        this.valid = true;
+      } else {
+        this.dialogForm = true;
+        this.dialogBoxO = false;
+        this.createBoxOpen();
+      } 
+    },
+
+    addToSale(barcode){ 
+      this.barcode = barcode;
+      this.getProduct();
+    },
 
     sumPrecios2(items) {
       return items.reduce((a, b) => {
@@ -2342,20 +1901,14 @@ export default {
         this.cashCutting = (JSON.parse(localStorage.getItem('cashCut')) === true);
       }
     },
-
-    getCreditsNoLi(){
-      let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-credits-noli-today/${this.bid}/`, {headers}).then((r)=>{
-        this.creditsNoLi = r.data.credits_today_noli 
-      })
-    },
+ 
 
     cashCut(){ 
  
-      this.getCutOfCashDetail = (this.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.credtisLiquidToday) + this.sumPrecios2(this.bonusToday) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
+      this.getCutOfCashDetail = (this.form1.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
       this.$swal.fire({
         title: '¿Seguro que deseas realizar el corte de caja?',
-        text: "!No podrás revertir esta acción!",
+        text: "¡No podrás revertir esta acción!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -2408,32 +1961,10 @@ export default {
       }) 
     },
 
-    getCreditsToday(){
-      let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-credits-today/${this.bid}/`, {headers}).then((r)=>{
-        this.creditsToday = r.data.credits_today 
-      })
-    }, 
-
-    getCreditsLuiquid(){
-      let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-credits-l-today/${this.bid}/`, {headers}).then((r)=>{
-        this.credtisLiquidToday = r.data.credits_liquid_today 
-      })
-    },
-
-    getBonusToday(){
-      let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-bonus-today/${this.bid}/`, {headers}).then((r)=>{
-        this.bonusToday = r.data.bonus_today 
-      })
-    },
-
-
-
     setCusomerIdF(){
       this.setCustomerId = null;
     },
+    
     changeDate() {
       console.log(this.date2, "# date 2");
     },
@@ -2476,19 +2007,17 @@ export default {
     },
 
     getSaleByDate(){
+      this.dialogLoading = true;
       let headers = { "Content-Type": "application/json;charset=utf-8" };
-      axios.get(`${API}api/sales/branch-office-sales-date/?date=${this.date}`, {headers}).then((r)=>{
-        if (r.data.length > 0) {
-          
+      axios.get(`${API}api/sales/branch-office-sales-date/?date_after=${this.dates[0]}&date_before=${this.dates[1]}`, {headers}).then((r)=>{
+       console.log(r.data, " data ")  
+        this.anotherSalesDetial = [] 
+          this.dialogLoading = false;
           this.salesByDatePicker = r.data.filter((s)=> s.branch_office.id == this.bid);
-
           this.salesByDatePicker.reverse(); 
           this.salesForCutDay = this.salesByDatePicker.filter((s) => s.payment_type == 1);
-          this.totalSalesToday = this.salesByDatePicker;
-        } else {
-          console.log("si entra");
-        }
-
+          
+          return r.data; 
        })
     },
 
@@ -2498,7 +2027,7 @@ export default {
         if (r.data.sales_today_cash.length > 0) {
           
           this.salesByTodayCash = r.data.sales_today_cash;
-          console.log(this.salesByTodayCash, " today cashing");
+          this.salesByDatePicker = this.salesByTodayCash;
           this.salesByTodayCash.reverse();  
 
         } else {
@@ -2545,6 +2074,7 @@ export default {
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.get(`${API}api/sales/branch-office-min-d/${this.bid}/`, {headers}).then((r)=>{
         this.moneyIncome = r.data.money_income_today 
+
       })
     },
 
@@ -2552,7 +2082,7 @@ export default {
     createBoxOpen(){
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.post(`${API}api/sales/box-open/create/`, {
-        "total": this.totalBoxO,
+        "total": this.form1.totalBoxO,
         "branch_office": this.bid
       }, {headers}).then((r)=>{ 
         setTimeout(() => this.notifyVue2("top", "right"), 5000);
@@ -2574,13 +2104,13 @@ export default {
         this.boxOpened = r.data.boxes_opened; 
         console.log(r.data.boxes_opened, " boxo pened");
         if (this.boxOpened.length != 0) {
-          this.totalBoxO = parseFloat(this.boxOpened[0].total) 
+          this.form1.totalBoxO = parseFloat(this.boxOpened[0].total) 
           this.timeBoxo = this.boxOpened[0].time;
-          console.log(this.totalBoxO, " bocono"); 
+          console.log(this.form1.totalBoxO, " bocono"); 
         }
  
         this.getBoxO();
-        return this.totalBoxO;
+        return this.form1.totalBoxO;
       })
     },
 
@@ -2590,10 +2120,7 @@ export default {
       }  
     },
  
-    clearInput() {
-      this.listPriceDiscount.push(this.objDiscount);
-      this.$refs.input.reset()
-    },
+   
 
     changeCheckbox(){ 
       this.setCustomerId = null; 
@@ -2602,11 +2129,16 @@ export default {
   createMoneyOut(){
     let headers = { "Content-Type": "application/json;charset=utf-8" };
     axios.post(`${API}api/sales/money-out/create/`, this.moneyOutForm, { headers }).then((r)=>{
+      this.getMoneyOut();
+
       setTimeout(() => this.notifyVue2("top", "right"), 5000);
       this.moneyOutForm.total  = "";
       this.getMoneyOut();
+
       this.getShoppings();
       return r.data;
+    }).catch((e)=>{
+      return e;
     })
 
   },
@@ -2638,6 +2170,7 @@ export default {
       });
 
       this.log = filtered;
+      console.log(this.log, " products ");
       switch (this.log.length) {
         case 0:
           this.$swal.fire({
@@ -2664,40 +2197,118 @@ export default {
     } 
 },
 
- searchItem() {
-  let filtered = [];  
-  if (this.barcode) {
-    filtered = this.listofProducts.filter((el) => {
-      return Object.values(el).some((val) =>
-        String(val).toLowerCase().includes(this.barcode)
-      );
-    });
-
-    this.log = filtered;
-      switch (this.log.length) {
-      case 0:
-        this.$swal.fire({
-          title: 'Verificador de producto',
-          text: "¡Producto no encontrado!",
-          icon: 'warning',
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Aceptar' 
-        })
-      break;
-
-      case 1:   
-        this.productVerifyName = this.log[0].name; 
-        this.productVerifyFilling = this.log[0].filling;  
-        this.productVerifyStock = `Existencia: ${this.log[0].stock}`;
-        this.productVerifyPrice = this.log[0].cost_price;   
-       break;
-    
-      default:
+searchArrayNewProductsFeature(e) {
+    e.preventDefault();
+    let filtered = [];
+    const input = e.target.value.toLowerCase();
+    if (input || this.barcode) {  
+      filtered = this.listofProducts.filter((el) => {
+        return Object.values(el).some((val) =>
+          String(val).toLowerCase().includes(input)
+        );
+      });
+    this.newProductsFeature = filtered;
+      console.log(this.newProductsFeature, " products ");
+      switch (this.newProductsFeature.length) {
+        case 0:
+          this.$swal.fire({
+            title: 'Detalle venta',
+            text: "¡Producto no encontrado!",
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aceptar' 
+          })
         break;
+        case 1: 
+        const detailSale = {
+            id: this.newProductsFeature[0].id,
+            name: this.newProductsFeature[0].name,
+            quanty: 1,
+            stock: this.newProductsFeature[0].stock,
+            min_stock: this.newProductsFeature[0].min_stock,
+            max_stock: this.newProductsFeature[0].max_stock, 
+            price: this.newProductsFeature[0].sale_price,
+            cost_price: this.newProductsFeature[0].cost_price,
+            wholesale_price: this.newProductsFeature[0].wholesale_price,
+            subtotal: this.newProductsFeature[0].sub_total,
+            code: this.newProductsFeature[0].code,
+            filling: this.newProductsFeature[0].filling,   
+            unities: 1, 
+            showUnities: false, 
+          };
+          var obj = {};
+          obj["id"] = detailSale.id;
+          obj["name"] = detailSale.name;
+          obj["quanty"] = detailSale.quanty;
+          obj["stock"] = detailSale.stock;
+          obj["min_stock"] = detailSale.min_stock;
+          obj["max_stock"] = detailSale.max_stock; 
+          obj["price"] = detailSale.price;
+          obj["cost_price"] = detailSale.cost_price;
+          obj["wholesale_price"] = detailSale.wholesale_price;
+          obj["sub_total"] = detailSale.subtotal; 
+          obj["code"] = detailSale.code;
+          obj["filling"] = detailSale.filling;  
+          obj["unities"] = detailSale.unities;
+          obj["showUnities"] = detailSale.showUnities; 
+          this.barcode = ""
+          if (obj["stock"] < 1) {
+            this.errorProductStock()
+          } else if (obj["stock"] <= obj["min_stock"]) {
+            this.warningProductStock(obj["stock"]); 
+            this.gettingProductsBarcode.push(obj); 
+          } else { 
+            this.gettingProductsBarcode.push(obj); 
+          }
+          this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2) * (obj["quanty"])               
+          this.exchange = this.totalSaleDetail - this.totalSaleDetail; 
+        break;
+      
+        default:
+          break;
+      } 
+      if (this.newProductsFeature.length > 1) {
+        console.log("greather than");
+        this.dialogGreatherThanOneProduct = true
+      }
     } 
-  } 
 },
+
+    searchItem() {
+      let filtered = [];  
+      if (this.barcode) {
+        filtered = this.listofProducts.filter((el) => {
+          return Object.values(el).some((val) =>
+            String(val).toLowerCase().includes(this.barcode)
+          );
+        });
+
+        this.log = filtered;
+          switch (this.log.length) {
+          case 0:
+            this.$swal.fire({
+              title: 'Verificador de producto',
+              text: "¡Producto no encontrado!",
+              icon: 'warning',
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Aceptar' 
+            })
+          break;
+
+          case 1:   
+            this.productVerifyName = this.log[0].name; 
+            this.productVerifyFilling = this.log[0].filling;  
+            this.productVerifyStock = `Existencia: ${this.log[0].stock}`;
+            this.productVerifyPrice = this.log[0].cost_price;   
+          break;
+        
+          default:
+            break;
+        } 
+      } 
+    },
 
     parsedDate(date){
       return moment(String(date)).format('DD/MM/YYYY')
@@ -2788,6 +2399,7 @@ export default {
         })
         .catch((error) => {
           this.errored = true;
+          return error;
         })
         .finally(() => (this.loading = false));
     },
@@ -2802,10 +2414,13 @@ export default {
       axios
         .get(`${API}api/sales/branch-office-cat/${this.bid}/`, { headers })
         .then((response) => { 
-          
+        
           if (response.data.list_products.length > 0) { 
             this.barc = response.data.list_products;
+            console.log(this.barc, " filter");
             this.filterProducts = this.barc.find(element => element.barcode == (this.barcode) || element.name.toLowerCase() == this.barcode.toLowerCase() || element.code.toLowerCase() == this.barcode.toLowerCase()); 
+            console.log(this.filterProducts, " filter");
+            
             if (this.filterProducts) {
               const detailSale = {
                 id: this.filterProducts.id,
@@ -2819,10 +2434,7 @@ export default {
                 wholesale_price: this.filterProducts.wholesale_price,
                 subtotal: this.filterProducts.sub_total,
                 code: this.filterProducts.code,
-                filling: this.filterProducts.filling,  
-                unities: 1,
-                type_of_sale: 1,
-                showUnities: false
+                filling: this.filterProducts.filling,    
               };
 
               var obj = {};
@@ -2837,10 +2449,7 @@ export default {
               obj["wholesale_price"] = detailSale.wholesale_price;
               obj["sub_total"] = detailSale.subtotal; 
               obj["code"] = detailSale.code;
-              obj["filling"] = detailSale.filling;
-              obj["unities"] = detailSale.unities;
-              obj["showUnities"] = detailSale.showUnities;
-              obj["type_of_sale"] = detailSale.type_of_sale;
+              obj["filling"] = detailSale.filling;   
 
 
               this.barcode = ""
@@ -2848,14 +2457,12 @@ export default {
               if (obj["stock"] < 1) {
                 this.errorProductStock()
               } else if (obj["stock"] <= obj["min_stock"]) {
-                this.warningProductStock(obj["stock"]);
-                obj["stock"] -= 1
+                this.warningProductStock(obj["stock"]); 
                 this.gettingProductsBarcode.push(obj); 
-              } else {
-                obj["stock"] -= 1
+              } else { 
                 this.gettingProductsBarcode.push(obj); 
               }
-              this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2) * (obj["quanty"]) * (obj["unities"])              
+              this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2) * (obj["quanty"])               
               this.exchange = this.totalSaleDetail - this.totalSaleDetail;
               this.searchForProduct = false;
 
@@ -2881,10 +2488,7 @@ export default {
         .finally(() => (this.loading = false));
     },
 
-    sumUnities(u, p){
-      return u * p;
-    },
-
+    
     sumTextField(){
       this.totalSaleDetail = this.sumPrecios(this.gettingProductsBarcode).toFixed(2) 
     },
@@ -2897,7 +2501,7 @@ export default {
 
     sumPrecios(items) {
       return items.reduce((a, b) => { 
-        return a + Number((b["price"]) * b["quanty"] * b["unities"]);
+        return a + Number((b["price"]) * b["quanty"]  );
       }, 0);
     },
 
@@ -2909,197 +2513,35 @@ export default {
 
     sumPreciosGain(items) {
       return items.reduce((a, b) => {
-        return a + Number((b["cost_price"]) * b["quanty"] * b["unities"]);
+        return a + Number((b["cost_price"]) * b["quanty"]  );
       }, 0);
     },
 
 
     cobrate(){
-      if (this.selectDisabled) {
-        this.textSetCustomer = `${this.customerForm.first_name} ${this.customerForm.last_name}`;
-      }
-      if (this.setCustomerId == null && this.selectDisabled == false) {
-        let timerInterval; 
-          this.$swal.fire( {
-            icon: 'error',
-            title: 'Venta',
-            text: '¡Debes seleccionar o crear un cliente!',
-            confirmButtonText: 'Aceptar',
-            showClass: {
-            popup: 'animate__animated animate__fadeInDown'
-            },
-            hideClass: {
-            popup: 'animate__animated animate__fadeOutUp', 
-            }, 
-            timer: 4000,
-            timerProgressBar: true,
-            didOpen: () => {
-              this.$swal.showLoading() 
-            },
-            willClose: () => {
-              clearInterval(timerInterval); 
-              this.bonusCash = "";
-            }
-          }).then((result) => {
-          return result; 
-        });
-      } else {
-        this.dialogCobro = true;
-
-      }
+      this.dialogCobro = true;
     },
 
     createSale(print) { 
 
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       this.dialogCobro = false;
-      
-      if (this.selectDisabled) {
-
-        this.textSetCustomer = `${this.customerForm.first_name} ${this.customerForm.last_name}`
-        
-
-        axios.post(`${API}api/users/customer/create/`, this.customerForm, { headers }).then((r)=>{
-          this.getCustomers();
-          var gain = (this.sumPrecios(this.gettingProductsBarcode).toFixed(2) - this.sumPreciosGain(this.gettingProductsBarcode));
-          
-          axios.post(
-              `${API}api/sales/create/`,
-              {
-                "discount": 0.0,
-                "total": this.sumPrecios(this.gettingProductsBarcode).toFixed(2),
-                "branch_office": this.bid,
-                "payment_type": this.hasCredit ? 3 : 1,
-                "customer": r.data.id,
-                "gain": gain.toFixed(2),
-                "date": this.date2
-              },
-              { headers }
-            )
-            .then((responsev) => {
-              if (this.hasCredit) {
-                axios.post(
-                  `${API}api/sales/credit/create/`,
-                  {
-                    "branch_office": this.bid,
-                    "customer":  this.setCustomerId, 
-                    "sale": responsev.data.id,
-                    "liquidated": false, 
-                    "total": responsev.data.total,
-                    "date": this.date2
-
-                  },
-                  { headers }
-                ).then((r)=>{
-                  this.getCreditsToday();
-                  
-                  return r.data;
-                })
-              }
-              this.theSaleId = responsev.data.id; 
-              for ( let index = 0; index < this.gettingProductsBarcode.length; index++ ) {
-                
-                axios
-                  .post(
-                    `${API}api/sales/detail-sale/create/`,
-                    {
-                      "sale": responsev.data.id,
-                      "product": this.gettingProductsBarcode[index].id,
-                      "quantity": this.gettingProductsBarcode[index].quanty,
-                      "sub_total": this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].price * this.gettingProductsBarcode[index].unities,
-                      "type_of_sale": typeof this.gettingProductsBarcode[index].type_of_sale == "number" ? 1 : this.gettingProductsBarcode[index].type_of_sale.id,
-
-                    },
-                    { headers }
-                  )
-                  .then((r) => {  
-                    console.log(r.data.type_of_sale, "sales data by");
-                    console.log(this.gettingProductsBarcode[index].stock, "Stock", this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].unities, "multiply");
-                    var restStock = this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].unities;
-
-                    axios.patch( `${API}api/sales/product/${this.gettingProductsBarcode[index].id}/`,
-                    {
-                      "stock": (this.gettingProductsBarcode[index].stock + 1) - restStock,
-                    },
-
-                    ).then((response)=>{  
-                      console.log(response.data, "product");
-                      setTimeout(() => ( (this.dialog = false), (this.gettingProductsBarcode = [])), 4000 );
-                      setTimeout(() => this.notifyVue("top", "right"), 5000);
-                      this.getSales();
-                      this.getSaleByDate(); 
-                      this.dialogCobro = false;
-                      this.getDetailSale(this.theSaleId)  
-                      this.customerForm.first_name = "";
-                      this.customerForm.last_name = "";
-                      this.customerForm.address = "";
-                      this.customerForm.phone_number = ""; 
-                      this.customerForm.branch_office = "";  
-                      this.getSaleByDate(); 
-                      this.getSaleByToday(); 
-                      this.getSaleByTodayAll();
-                      this.getCreditsToday(); 
-                      this.getShoppings();
-                      if (print == false) {
-                        this.dialogCash = false;  
-                      } else {
-                        this.dialogCash = true;   
-                      }
-                      return response.data;
-
-                    }).catch((error) => {
-                      return error;
-                    });
-
-                  return r.data;
-                  })
-                  .catch((error) => {
-                    return error;
-                  });
-              }
-            })
-            .catch((error) => {
-              return error;
-
-          });
-        })
-      } else {
-        var gain = (this.sumPrecios(this.gettingProductsBarcode).toFixed(2) - this.sumPreciosGain(this.gettingProductsBarcode));
-        console.log(gain, " gain ");
-        axios.post(
+      var gain = (this.sumPrecios(this.gettingProductsBarcode).toFixed(2) - this.sumPreciosGain(this.gettingProductsBarcode));
+      axios.post(
           `${API}api/sales/create/`,
           {
-            "discount":  0.0,
+            "discount": 0.0,
             "total": this.sumPrecios(this.gettingProductsBarcode).toFixed(2),
             "branch_office": this.bid,
-            "payment_type": this.hasCredit ? 3 : 1,
-            "customer": this.setCustomerId,
+            "payment_type": 1, 
             "gain": gain.toFixed(2),
             "date": this.date2
-
           },
           { headers }
         )
         .then((responsev) => {
-          if (this.hasCredit) {
-                axios.post(
-                  `${API}api/sales/credit/create/`,
-                  {
-                    "branch_office": this.bid,
-                    "customer":  this.setCustomerId, 
-                    "sale": responsev.data.id,
-                    "liquidated": false, 
-                    "total": responsev.data.total,
-                    "date": this.date2
-
-                  },
-                  { headers }
-                ).then((r)=>{
-                  this.getCreditsToday();
-                  return r.data;
-                })
-              }
-          this.theSaleId = responsev.data.id;
+        
+          this.theSaleId = responsev.data.id; 
           for ( let index = 0; index < this.gettingProductsBarcode.length; index++ ) {
             
             axios
@@ -3109,24 +2551,19 @@ export default {
                   "sale": responsev.data.id,
                   "product": this.gettingProductsBarcode[index].id,
                   "quantity": this.gettingProductsBarcode[index].quanty,
-                  "sub_total": this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].price * this.gettingProductsBarcode[index].unities,
-                  "type_of_sale": typeof this.gettingProductsBarcode[index].type_of_sale == "number" ? 1 : this.gettingProductsBarcode[index].type_of_sale.id,
-
+                  "sub_total": this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].price, 
                 },
                 { headers }
               )
-              .then((r) => {  
-                console.log(r.data.type_of_sale, "sales data by");
-                var restStock = this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].unities;
-                console.log(this.gettingProductsBarcode[index].stock, "Stock", this.gettingProductsBarcode[index].quanty * this.gettingProductsBarcode[index].unities, "multiply");
+              .then((r) => {   
+                  var restStock = this.gettingProductsBarcode[index].quanty;
+
                 axios.patch( `${API}api/sales/product/${this.gettingProductsBarcode[index].id}/`,
                 {
-                  "stock": (this.gettingProductsBarcode[index].stock + 1) - restStock,
+                  "stock": this.gettingProductsBarcode[index].stock - restStock,
                 },
 
-                ).then((response)=>{  
-                  console.log(response.data, "product");
-
+                ).then((response)  => {   
                   setTimeout(() => ( (this.dialog = false), (this.gettingProductsBarcode = [])), 4000 );
                   setTimeout(() => this.notifyVue("top", "right"), 5000);
                   this.getSales();
@@ -3137,36 +2574,32 @@ export default {
                   this.customerForm.last_name = "";
                   this.customerForm.address = "";
                   this.customerForm.phone_number = ""; 
-                  this.customerForm.branch_office = "";    
+                  this.customerForm.branch_office = "";  
+                  this.getSaleByDate(); 
+                  this.getSaleByToday(); 
+                  this.getSaleByTodayAll(); 
+                  this.getShoppings();
                   if (print == false) {
                     this.dialogCash = false;  
                   } else {
                     this.dialogCash = true;   
                   }
-                  this.getSaleByDate(); 
-                  this.getSaleByToday();
-                  this.getSaleByTodayAll();
-                  this.getCreditsToday(); 
-                  this.getShoppings();
-
                   return response.data;
+
                 }).catch((error) => {
                   return error;
+                });
 
-                }); 
-                return r.data;
+              return r.data;
               })
               .catch((error) => {
                 return error;
-
               });
           }
-        }).catch((error) => {
-          return error;
-
-        }); 
-      
-      }
+        })
+        .catch((error) => {
+          return error; 
+      }); 
  
     },
 
@@ -3278,9 +2711,7 @@ export default {
           this.totalSale = response.data.total;
           this.timeSale = response.data.time;
           this.dateSale = response.data.date;
-          this.customerDetail = `${response.data.customer.first_name} ${response.data.customer.last_name}`;
-
-
+  
           this.detailSalesBySale = response.data.sales;
           switch (response.data.payment_type) {
             case 1:
@@ -3322,14 +2753,6 @@ export default {
     selectTypeOfSale(t) {
       this.typeOfSaleId = t.id;
       this.typeOfSale = t.name;
-      t.showUnities = !t.showUnities 
-      if (t.id > 1) {
-        t.showUnities = true;
-      } else {
-        t.showUnities = false; 
-      }
-      console.log(t.showUnities);
-
     },
 
     postTypeOfSale(){
@@ -3407,7 +2830,7 @@ export default {
       axios.get(`${API}api/sales/branch-office-sh-today/${this.bid}/`, { headers,}).then((response) => {
         this.shoppings = response.data.shoppings; 
         console.log(this.sumPrecios2(this.salesByTodayCash),  this.salesByTodayCash, "today casj");
-        this.getCutOfCashDetail = (this.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.credtisLiquidToday) + this.sumPrecios2(this.bonusToday) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
+        this.getCutOfCashDetail = (this.form1.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
 
         this.shoppings.reverse();
         return response.data

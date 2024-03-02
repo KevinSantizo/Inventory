@@ -7,6 +7,10 @@
       :sidebar-background-image="sidebarBackgroundImage"
     >
       <mobile-menu slot="content"></mobile-menu>
+      <sidebar-link to="/ventas">
+        <v-icon color="white" size="25">mdi-cart</v-icon>
+        <p>Ventas</p>
+      </sidebar-link>
       <sidebar-link to="/dashboard">
         <v-icon color="white" size="25">mdi-view-dashboard</v-icon>
         <p>Dashboard</p>
@@ -15,14 +19,11 @@
         <v-icon color="white" size="25">mdi-package-variant-closed</v-icon>
         <p>Productos</p>
       </sidebar-link>
-      <sidebar-link to="/ventas">
-        <v-icon color="white" size="25">mdi-cart</v-icon>
-        <p>Ventas</p>
-      </sidebar-link>
-      <sidebar-link to="/proveedores">
+     
+     <!--  <sidebar-link to="/proveedores">
         <v-icon color="white" size="25">mdi-account-group</v-icon>
         <p>Créditos</p>
-      </sidebar-link>
+      </sidebar-link>-->
       <sidebar-link to="/compras">
         <v-icon color="white" size="25">mdi-cash-check</v-icon>
         <p>Compras</p>

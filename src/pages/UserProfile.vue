@@ -21,8 +21,7 @@
                           </td>
                           <td>
                             <v-text-field  
-                              hide-details
-                              readonly
+                              hide-details 
                               prepend-inner-icon="mdi-barcode-scan" 
                               color="#26547c"
                               required
@@ -194,13 +193,11 @@
                               item-text="name"
                               @change="selectText"
                               return-object
-                              hide-details
-                              :disabled="readOnly" 
+                              hide-details 
                               required
                               color="#26547c"
                               outlined 
-                              dense
-                              readonly
+                              dense 
                               v-model="categoryName"
                             ></v-select>
                             <div class=" ">
@@ -280,20 +277,13 @@
     
     <div class=" mr-5 ml-5 "> 
       <v-card  outlined elevation="0">
-        <v-tabs 
-          v-model="tab" 
-          color="#26547c" 
-        >
+        <v-tabs v-model="tab" color="#26547c">
           <v-tabs-slider color="#26547c"></v-tabs-slider> 
           <v-tab ><v-icon class="mr-3"  >mdi-file-document-multiple-outline</v-icon>Nuevo</v-tab>
-          <v-tab><v-icon class="mr-3" >mdi-clipboard-text-multiple-outline</v-icon>Productos</v-tab>
-
-          <v-tab><v-icon class="mr-3" >mdi-text-box-edit-outline</v-icon>Modificar</v-tab>
-          
+          <v-tab><v-icon class="mr-3" >mdi-clipboard-text-multiple-outline</v-icon>Productos</v-tab> 
+          <v-tab><v-icon class="mr-3" >mdi-text-box-edit-outline</v-icon>Modificar</v-tab> 
           <v-tab><v-icon class="mr-3" >mdi-file-document-remove</v-icon>Eliminar</v-tab>
-          <!-- <v-tab><v-icon class="mr-3" >mdi-cogs</v-icon>Ajuste</v-tab>
-           -->
-        
+          <!-- <v-tab><v-icon class="mr-3" >mdi-cogs</v-icon>Ajuste</v-tab> -->
         </v-tabs>
       </v-card>
       <v-tabs-items v-model="tab" class="mt-3">
@@ -523,6 +513,23 @@
           <v-card outlined class="pa-3 mt-6" color="grey lighten-4">
             <v-card-actions>
               <v-spacer></v-spacer> 
+              <!-- <v-btn 
+                color="#2ec4b6"
+                dark
+                min-width="200"
+                elevation="0"
+                class="mr-5"
+                @click="importToDataBase()"
+              >
+                <v-icon dark class="mr-3"> mdi-check </v-icon>
+                Guardar en base de datos
+              </v-btn>
+              <input
+                  type="file"
+                  v-on:change="addfile($event)"
+                  placeholder="Upload file"
+                  accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                />-->
               <v-btn 
                 color="#2ec4b6"
                 dark
@@ -561,22 +568,22 @@
                   @change="selectCategory"
                   outlined> 
                 </v-select> 
-              <!--   <div>
-                  <vue-excel-xlsx
-                    :data="listOfProducts"
-                    :columns="columns"
-                    :file-name="'productos'"
-                    :file-type="'xlsx'"
-                    :sheet-name="'sheetname'"
-                    >
-                    <v-btn dark color="#0ead69">
-                      <v-icon dark>
-                        mdi-microsoft-excel
-                      </v-icon> 
-                    </v-btn> 
-                  </vue-excel-xlsx>
+              <div>
+                <vue-excel-xlsx
+                  :data="listOfProducts"
+                  :columns="columns"
+                  file-name="productos"
+                  file-type="xlsx"
+                  sheet-name="sheetname"
+                  >
+                  <v-btn dark color="#0ead69">
+                    <v-icon dark>
+                      mdi-microsoft-excel
+                    </v-icon> 
+                  </v-btn> 
+                </vue-excel-xlsx>
                   
-                </div>-->
+                </div> 
                 
               </v-row>  
               </v-col>
@@ -590,7 +597,7 @@
             >
             <template v-slot:no-data>
               <v-alert :value="true" color="error" dark class="text-center mt-3 mr-15 ml-15">
-                Producto(s) no encontrado :(
+                Producto(s) no encontrado
               </v-alert>
             </template>
               <template v-slot:item="row"> 
@@ -708,8 +715,7 @@
                       </td>
                       <td>
                         <v-text-field  
-                          hide-details
-                          readonly
+                          hide-details 
                           prepend-inner-icon="mdi-barcode-scan" 
                           color="#26547c"
                           required
@@ -891,14 +897,12 @@
                           item-text="name"
                           @change="selectText"
                           return-object
-                          hide-details
-                          :disabled="readOnly" 
+                          hide-details 
                           required
                           color="#26547c"
                           outlined
                           :rules="obligatorioRules" 
-                          dense
-                          readonly
+                          dense 
                           v-model="categoryName"
                         ></v-select>
                         <div class=" ">
@@ -907,7 +911,6 @@
                             elevation="0" 
                             outlined
                             small
-                            disabled
                             color="#26547c"
                           >
                             <v-icon dark> mdi-plus </v-icon>
@@ -1510,6 +1513,18 @@
   </v-row>  --> 
       
      </div>
+     <v-dialog v-model="dialogpost" hide-overlay persistent width="300">
+      <v-card color="#2ec4b6" dark>
+        <v-card-text>
+          Guardando
+          <v-progress-linear
+            indeterminate
+            color="white"
+            class="mb-0"
+          ></v-progress-linear>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="dialogForm" hide-overlay persistent width="300">
       <v-card color="#2ec4b6" dark>
         <v-card-text>
@@ -1528,11 +1543,14 @@
 <script>
 import axios from "axios";
 import { API } from "../globalVars"; 
-  
+import * as XLSX from "xlsx";
 export default {
   components: { },
   data() {
     return {
+      file: File,
+      arrayBuffer: null,
+      filelist: null,
       columns : [
         {
             label: "Código",
@@ -1625,12 +1643,10 @@ export default {
         cost_price: null,
         sale_price: null,
         wholesale_price: null,
-        type_of_sale: "Unidad",
-        sell_by_date: "", 
+        type_of_sale: "Unidad", 
         code: "",
         filling: "",
-        product_category: null, 
-        branch_office: this.bid
+        product_category: null,  
       },
 
       categoryProductForm: {
@@ -1727,10 +1743,12 @@ export default {
       selectedProductForSetting: [],
       selectedProductObj: {},
       model: null,
+      arrayProductsImport: [],
+      dialogpost: false,
     };
   },
 
-
+  
 computed: {
     filteredData() {
        
@@ -1761,6 +1779,57 @@ computed: {
   },
 
   methods: { 
+
+    addfile(event) {
+      this.file = event.target.files[0];
+      let fileReader = new FileReader();
+      fileReader.readAsArrayBuffer(this.file);
+      fileReader.onload = (e) => {
+        this.arrayBuffer = fileReader.result;
+        var data = new Uint8Array(this.arrayBuffer);
+        var arr = new Array();
+        for (var i = 0; i != data.length; ++i)
+          arr[i] = String.fromCharCode(data[i]);
+        var bstr = arr.join("");
+        var workbook = XLSX.read(bstr, { type: "binary" });
+        var first_sheet_name = workbook.SheetNames[0];
+        var worksheet = workbook.Sheets[first_sheet_name]; 
+        var arraylist = XLSX.utils.sheet_to_json(worksheet, { raw: true });
+        this.arrayProductsImport = arraylist
+        console.log(this.arrayProductsImport, "nuevo array list");
+        this.filelist = [];
+        console.log(this.filelist);
+      };
+    },
+
+    importToDataBase(){
+      this.dialogpost = true;
+      let headers = { "Content-Type": "application/json;charset=utf-8" };
+      
+      for (let index = 0; index < this.arrayProductsImport.length; index++) {
+        axios.post(`${API}api/sales/product/create/`, {
+          "name": this.arrayProductsImport[index].Articulo,
+          "barcode": this.arrayProductsImport[index].Codigo2,
+          "stock": this.arrayProductsImport[index].InventTienda,
+          "min_stock": this.arrayProductsImport[index].InventMinimo,
+          "max_stock": 50,
+          "cost_price":this.arrayProductsImport[index].PrecioCosto.toFixed(2),
+          "sale_price":this.arrayProductsImport[index].PrecioV1.toFixed(2),
+          "wholesale_price":this.arrayProductsImport[index].preciomay.toFixed(2),
+          "product_category":this.arrayProductsImport[index].Departamento,
+          "filling": " ",
+          "sell_by_date": " ",
+          "code":  this.arrayProductsImport[index].Codigo1,
+        }, {headers}).then((r)=>{
+          this.dialogpost = false;
+          console.log(r.data, "post");
+        }).catch((e)=>{
+          console.log(e, "error");
+        })
+      }
+      
+     
+    },
 
     checkSecodnProduct(){
       if (this.idNewSetProduct == null) {
@@ -2235,6 +2304,7 @@ searchArrayForSetting2(e) {
           return response.data;
         })
         .catch((error) => {
+          console.log('loggin error', error);
           return error
         });
       } if (this.productForm.product_category == null) {
@@ -2251,6 +2321,7 @@ searchArrayForSetting2(e) {
     },
 
     getProducts() {
+      console.log("gettind produtcs");
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios
         .get(`${API}api/sales/branch-office-cat/${this.bid}/`, { headers })

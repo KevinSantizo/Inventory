@@ -1,0 +1,17 @@
+version: "3.8"
+services: 
+  nginx:
+    image: kevito1010/inventory:latest
+    build: .
+    volumes:
+      - .:/app
+      - /app/node_modules/
+    ports:
+      - "80:80"
+    networks:
+      - web_nw
+    restart: always
+
+networks:   
+  web_nw:
+    driver: bridge
