@@ -25,8 +25,8 @@
         <p>Créditos</p>
       </sidebar-link>-->
       <sidebar-link to="/compras">
-        <v-icon color="white" size="25">mdi-cash-check</v-icon>
-        <p>Compras</p>
+        <v-icon color="white" size="25">mdi-swap-horizontal</v-icon>
+        <p>Trasladar</p>
       </sidebar-link>
     </side-bar>
 

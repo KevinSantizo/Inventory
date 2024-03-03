@@ -148,22 +148,7 @@
                         </td>
                       </tr>
                       <tr>
-                        <td>
-                          <div class="mt-2 mr-2 font-weight-bold ">
-                            Precio mayoreo
-                          </div>  
-                        </td>
-                        <td>
-                          <v-text-field 
-                            hide-details
-                            outlined
-                            color="#26547c"
-                            dense 
-                            type="number"
-                            prefix="Q."
-                            v-model="productForm.wholesale_price"
-                        ></v-text-field>
-                        </td> 
+                     
                         <td>
                           <div class="mt-2 mr-2 font-weight-bold ">
                             Presentación
@@ -437,23 +422,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td>
-                      <div class="mt-2 mr-2 font-weight-bold ">
-                        Precio mayoreo
-                      </div>  
-                    </td>
-                    <td>
-                      <v-text-field 
-                        hide-details
-                        outlined
-                        color="#26547c"
-                        dense
-                        :rules="obligatorioRules" 
-                        type="number"
-                        prefix="Q."
-                        v-model="productForm.wholesale_price"
-                    ></v-text-field>
-                    </td> 
+                  
                     <td>
                       <div class="mt-2 mr-2 font-weight-bold ">
                         Presentación
@@ -606,8 +575,7 @@
                   <td class="text-left caption font-weight-medium">{{row.item.name}} - {{row.item.filling }}</td>
                   <td class="text-center caption font-weight-medium">{{row.item.product_category.name}}</td>
                   <td class="text-center caption font-weight-medium">{{row.item.cost_price }}</td>
-                  <td class="text-center caption font-weight-medium">{{row.item.sale_price}} GTQ</td>
-                  <td class="text-center caption green--text font-weight-medium">{{row.item.wholesale_price}} GTQ</td>
+                  <td class="text-center caption font-weight-medium">{{row.item.sale_price}} GTQ</td> 
                   <td class="text-center caption font-weight-medium">
                     <v-chip class="ma-2 pa-1" label outlined :color="row.item.stock < 1 ? '#ff312e' : row.item.stock <= row.item.min_stock ? 'orange' : '#66ad2d' "  > 
                       <div class="text-center caption center-text">{{fixStock(row.item.stock)}}</div> 
@@ -657,8 +625,7 @@
                   <td class="text-left font-weight-medium">{{row.item.name}} - {{row.item.filling }}</td>
                   <td class="text-center font-weight-medium">{{row.item.product_category.name}}</td>
                   <td class="text-center font-weight-medium">{{row.item.cost_price }}</td>
-                  <td class="text-center font-weight-medium">{{row.item.sale_price}} GTQ</td>
-                  <td class="text-center green--text font-weight-medium">{{row.item.wholesale_price}} GTQ</td>
+                  <td class="text-center font-weight-medium">{{row.item.sale_price}} GTQ</td> 
                   <td class="text-center font-weight-medium">
                     <v-card class="ma-2 pa-1 rounded-card" outlined dark :color="row.item.stock < 1 ? '#ff312e' : row.item.stock <= 10 ? 'orange' : '#66ad2d' " text-color="white" > 
                       <div class="text-center center-text">{{fixStock(row.item.stock)}}</div> 
@@ -850,23 +817,7 @@
                     </td>
                   </tr>
                   <tr>
-                    <td>
-                      <div class="mt-2 mr-2 font-weight-bold ">
-                        Precio mayoreo
-                      </div>  
-                    </td>
-                    <td>
-                      <v-text-field 
-                        hide-details
-                        outlined
-                        color="#26547c"
-                        dense
-                        :rules="obligatorioRules" 
-                        type="number"
-                        prefix="Q."
-                        v-model="productForm.wholesale_price"
-                    ></v-text-field>
-                    </td> 
+                 
                     <td>
                       <div class="mt-2 mr-2 font-weight-bold ">
                         Presentación
@@ -996,8 +947,7 @@
                       <td class="text-left font-weight-medium">{{row.item.name}} - {{row.item.filling }}</td>
                       <td class="text-center font-weight-medium">{{row.item.product_category.name}}</td>
                       <td class="text-center font-weight-medium">{{row.item.cost_price }}</td>
-                      <td class="text-center font-weight-medium">{{row.item.sale_price}} GTQ</td>
-                      <td class="text-center green--text font-weight-medium">{{row.item.wholesale_price}} GTQ</td>
+                      <td class="text-center font-weight-medium">{{row.item.sale_price}} GTQ</td> 
                       <td class="text-center font-weight-medium">
                         <v-card class="ma-2 pa-1 rounded-card" outlined dark :color="row.item.stock < 1 ? '#ff312e' : row.item.stock <= 10 ? 'orange' : '#66ad2d' " text-color="white" > 
                           <div class="text-center center-text">{{fixStock(row.item.stock)}}</div> 
@@ -1197,24 +1147,7 @@
                         </td>
                       </tr>
                       <tr>
-                        <td>
-                          <div class="mt-2 mr-2 font-weight-bold ">
-                            Precio mayoreo
-                          </div>  
-                        </td>
-                        <td>
-                          <v-text-field 
-                            hide-details
-                            outlined
-                            readonly
-                            color="#26547c"
-                            dense
-                            :rules="obligatorioRules" 
-                            type="number"
-                            prefix="Q."
-                            v-model="productForm.wholesale_price"
-                        ></v-text-field>
-                        </td> 
+                      
                         <td>
                           <div class="mt-2 mr-2 font-weight-bold ">
                             Presentación
@@ -1701,12 +1634,7 @@ export default {
           sortable: false,
           value: 'date' 
         }, 
-        { 
-          text: 'P. Mayoreo',
-          align: 'center',
-          sortable: false,
-          value: 'date' 
-        }, 
+ 
         {
           text: 'Stock',
           align: 'center',

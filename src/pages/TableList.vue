@@ -156,19 +156,17 @@
                   <v-list-item-content>
                     <v-list-item-title>{{item.name}} {{item.filling}}</v-list-item-title>
                     <v-list-item-subtitle>Existencia: {{item.stock}}</v-list-item-subtitle>
-                    <v-list-item-subtitle>Precio: Q{{item.sale_price}}</v-list-item-subtitle>
+                    <v-list-item-subtitle>Precio: Q{{parseFloat(item.sale_price).toFixed(2)}}</v-list-item-subtitle>
                  
                   </v-list-item-content>
                   <v-list-item-action>
                     <v-btn 
                       color="#2ec4b6"
                       dark
-                      outlined
-                      min-width="200"
+                      outlined 
                       elevation="0"
                       @click="addToSale(item.barcode)" 
-                    >
-                      <v-icon dark class="mr-3"> mdi-check </v-icon>
+                    > 
                       Agregar a venta
                     </v-btn>
                   </v-list-item-action>
@@ -178,44 +176,36 @@
           </div>
           </v-card-text> 
           <v-card outlined color="grey lighten-4">
-            <v-card-actions > 
-              <v-row justify="space-between" class="ma-3"> 
+            <v-card-actions >  
+              <v-spacer></v-spacer>
                 <v-btn 
                   v-show="this.log.length<2"
-                  color="#2ec4b6"
-                  dark
-                  min-width="200"
+                  color="red accent-3"
+                  dark 
                   elevation="0"
                   @click="(showVerifier = false)" 
-                >
-                  <v-icon dark class="mr-3"> mdi-chevron-left </v-icon>
+                > 
                   Cancelar
-                </v-btn>
-                <v-spacer></v-spacer>
-                
+                </v-btn> 
                 <v-btn 
                   v-if="this.log.length<2"
                   color="#2ec4b6"
-                  dark
-                  min-width="200"
+                  dark 
                   elevation="0"
                   @click="(showVerifier = false), submit()" 
                 >
-                  <v-icon dark class="mr-3"> mdi-check </v-icon>
+                   
                   Agregar a venta
                 </v-btn>
                 <v-btn 
                   v-else
                   color="#2ec4b6"
-                  dark
-                  min-width="200"
+                  dark 
                   elevation="0"
                   @click="(showVerifier = false)" 
-                >
-                  <v-icon dark class="mr-3"> mdi-check </v-icon>
+                > 
                   Aceptar
-                </v-btn>
-              </v-row>
+                </v-btn> 
 
             </v-card-actions>
           </v-card> 
@@ -252,8 +242,7 @@
                       outlined
                       elevation="0"
                       @click="addToSale(item.barcode)" 
-                    >
-                      <v-icon dark class="mr-3"> mdi-check </v-icon>
+                    > 
                       Agregar a venta
                     </v-btn>
                   </v-list-item-action>
@@ -265,14 +254,13 @@
             <v-card-actions > 
               <v-row justify="space-between" class="ma-3"> 
                 <v-spacer></v-spacer>
+                
                 <v-btn 
                   color="#2ec4b6"
-                  dark
-                  min-width="200"
+                  dark 
                   elevation="0"
                   @click="(dialogGreatherThanOneProduct = false)" 
-                >
-                  <v-icon dark class="mr-3"> mdi-check </v-icon>
+                > 
                   Aceptar
                 </v-btn>
               </v-row>
@@ -857,9 +845,7 @@
                 >
                 <template v-slot:item="row">
                   <tr>
-                    <td class="text-center font-weight-medium">
-                       {{row.item.total_sales}}
-                      </td>
+                     
                       <td class="text-center font-weight-medium">
                         {{ parsedDate(row.item.date) }}
                       </td>
@@ -902,7 +888,7 @@
                 <div ref="document"> 
                   <div class=" " id="element-to-convert"> 
  
-                      <p class=" "> {{parsedDate(this.anotherSalesDetial.date)}}  {{formatAMPM(this.anotherSalesDetial.time) }}</p> 
+                      <p class=" "> {{parsedDate(this.anotherSalesDetial.date)}}  {{formatAMPM(this.anotherSalesDetial.time) }} </p> 
 
                       <v-divider></v-divider>
                       <table class="ndk centrado">
@@ -1087,12 +1073,10 @@
                     <td class="text-left grey--text font-weight-bold"> Salidas </td>
                     <td class="text-right red--text font-weight-bold "> - Q {{numberWithCommas(sumPrecios2(moneyOut).toFixed(2)) }} </td>
                   </tr> 
+                   
                   <tr> 
-                    <td class="text-left grey--text font-weight-bold"> Total compras </td>
-                    <td class="text-right red--text font-weight-bold border_bottom"> - Q {{numberWithCommas(sumPrecios2(shoppings).toFixed(2)) }} </td>
-                  </tr> 
-                  <tr> 
-                    <td></td>
+                    <td class="text-left black--text font-weight-bold"> Total </td>
+
                     <td  class="text-right black--text font-weight-bold">Q {{numberWithCommas(getCutOfCashDetail)}}</td>
                   </tr>
                 </table>
@@ -1410,6 +1394,7 @@
     <v-dialog 
       v-model="dialogCobro"
       width="700"
+      persistent
     > 
       <v-card>
         <v-card-title class="text-h5 grey lighten-2">
@@ -1476,16 +1461,7 @@
                     ></v-text-field>
                     </td>
                 </tr>
-              </table>
-              <v-card outlined class="pa-3 mt-4" color="#f6fff8">
-                <v-row justify="space-between">
-                  <div class="pa-3 font-weight-medium">
-                    Cliente: {{ this.textSetCustomer }}     
-                  </div>
-                  <div> 
-                  </div> 
-                </v-row>
-              </v-card>
+              </table> 
             </v-tab-item>
              
           </v-tabs-items>
@@ -1495,13 +1471,22 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-           
           <v-btn 
             class="pa-2"
+            depressed
+            color="red accent-3" 
+            dark
+            @click=" (dialogCobro = false)"
+          > 
+            Cancelar 
+          </v-btn>
+          <v-btn 
+            class="pa-2 pl-4 pr-4"
             depressed 
+            color="#2ec4b6"
+            dark
             @click=" (dialogForm = true), createSale(true)"
-          >
-            <v-icon left   color="#2ec4b6">mdi-printer</v-icon> 
+          > 
             Cobrar 
           </v-btn>
         </v-card-actions>
@@ -1577,6 +1562,7 @@ import axios from "axios";
 import { API } from "../globalVars";
 import html2pdf from "html2pdf.js";
 import moment from 'moment'
+import { invalid } from "moment/moment";
 export default {
   components: {
     //MultiListSelect,
@@ -1837,9 +1823,7 @@ export default {
     this.getBoxClosed();  
     this.getShoppings();
 
-    setTimeout(() => {
-    console.log(this.moneyIncome, 'money');
-      
+    setTimeout(() => { 
     }, 5000);
     
   },
@@ -2010,7 +1994,7 @@ export default {
       this.dialogLoading = true;
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.get(`${API}api/sales/branch-office-sales-date/?date_after=${this.dates[0]}&date_before=${this.dates[1]}`, {headers}).then((r)=>{
-       console.log(r.data, " data ")  
+        
         this.anotherSalesDetial = [] 
           this.dialogLoading = false;
           this.salesByDatePicker = r.data.filter((s)=> s.branch_office.id == this.bid);
@@ -2030,10 +2014,7 @@ export default {
           this.salesByDatePicker = this.salesByTodayCash;
           this.salesByTodayCash.reverse();  
 
-        } else {
-          console.log("si entra");
-        }
-
+        }  
        })
     },
 
@@ -2046,9 +2027,7 @@ export default {
           this.totalSalesByTodayAll = r.data.sales_today 
           this.totalSalesByTodayAll.reverse();  
 
-        } else {
-          console.log("si entra");
-        }
+        }  
 
        })
     },
@@ -2097,16 +2076,13 @@ export default {
       })
     },
 
-    getBoxODataApi(){
-      console.log(this.bid, " bid ");
+    getBoxODataApi(){ 
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.get(`${API}api/sales/branch-office-boxo/${this.bid}/`, {headers}).then((r)=>{
-        this.boxOpened = r.data.boxes_opened; 
-        console.log(r.data.boxes_opened, " boxo pened");
+        this.boxOpened = r.data.boxes_opened;  
         if (this.boxOpened.length != 0) {
           this.form1.totalBoxO = parseFloat(this.boxOpened[0].total) 
-          this.timeBoxo = this.boxOpened[0].time;
-          console.log(this.form1.totalBoxO, " bocono"); 
+          this.timeBoxo = this.boxOpened[0].time; 
         }
  
         this.getBoxO();
@@ -2169,8 +2145,7 @@ export default {
         );
       });
 
-      this.log = filtered;
-      console.log(this.log, " products ");
+      this.log = filtered; 
       switch (this.log.length) {
         case 0:
           this.$swal.fire({
@@ -2207,8 +2182,7 @@ searchArrayNewProductsFeature(e) {
           String(val).toLowerCase().includes(input)
         );
       });
-    this.newProductsFeature = filtered;
-      console.log(this.newProductsFeature, " products ");
+    this.newProductsFeature = filtered; 
       switch (this.newProductsFeature.length) {
         case 0:
           this.$swal.fire({
@@ -2268,8 +2242,7 @@ searchArrayNewProductsFeature(e) {
         default:
           break;
       } 
-      if (this.newProductsFeature.length > 1) {
-        console.log("greather than");
+      if (this.newProductsFeature.length > 1) { 
         this.dialogGreatherThanOneProduct = true
       }
     } 
@@ -2310,13 +2283,13 @@ searchArrayNewProductsFeature(e) {
       } 
     },
 
-    parsedDate(date){
-      return moment(String(date)).format('DD/MM/YYYY')
+    parsedDate(date){ 
+      return date == undefined ? '' : moment(String(date)).format('DD/MM/YYYY')
     },
 
     formatAMPM(time) {
-      const dt = moment(time, ["h:mm:ss a"]).format("hh:mm a");
-      return dt;
+      const dt = moment(time, ["h:mm:ss a"]).format("hh:mm a"); 
+      return time == undefined ? '' : dt;
     },
 
     exportToPDF() {
@@ -2416,10 +2389,9 @@ searchArrayNewProductsFeature(e) {
         .then((response) => { 
         
           if (response.data.list_products.length > 0) { 
-            this.barc = response.data.list_products;
-            console.log(this.barc, " filter");
+            this.barc = response.data.list_products; 
             this.filterProducts = this.barc.find(element => element.barcode == (this.barcode) || element.name.toLowerCase() == this.barcode.toLowerCase() || element.code.toLowerCase() == this.barcode.toLowerCase()); 
-            console.log(this.filterProducts, " filter");
+           
             
             if (this.filterProducts) {
               const detailSale = {
@@ -2828,9 +2800,8 @@ searchArrayNewProductsFeature(e) {
     getShoppings(){
       let headers = { "Content-Type": "application/json;charset=utf-8" };
       axios.get(`${API}api/sales/branch-office-sh-today/${this.bid}/`, { headers,}).then((response) => {
-        this.shoppings = response.data.shoppings; 
-        console.log(this.sumPrecios2(this.salesByTodayCash),  this.salesByTodayCash, "today casj");
-        this.getCutOfCashDetail = (this.form1.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut) - this.sumPrecios2(this.shoppings)).toFixed(2);
+        this.shoppings = response.data.shoppings;  
+        this.getCutOfCashDetail = (this.form1.totalBoxO + this.sumPrecios2(this.salesByTodayCash) + this.sumPrecios2(this.moneyIncome) - this.sumPrecios2(this.moneyOut)).toFixed(2);
 
         this.shoppings.reverse();
         return response.data
